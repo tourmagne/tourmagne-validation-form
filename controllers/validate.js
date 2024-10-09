@@ -5,7 +5,7 @@ const path = require('path');
 
 const {
   gdrive,
-} = require('../../services');
+} = require('../services');
 
 const UPLOAD_PATH = path.resolve(__dirname, '../../uploads');
 
