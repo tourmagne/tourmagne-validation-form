@@ -28,7 +28,7 @@ app.use(express.json()); // body parser
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Mount routes
-app.get('/:id', submitForm);
+app.get('/', submitForm);
 app.post('/validator', upload.fields([
   { name: 'photoFiles', maxCount: 5 },
   { name: 'gpxFiles', maxCount: 20 },

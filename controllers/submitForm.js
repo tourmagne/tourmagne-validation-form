@@ -2,7 +2,7 @@
 
 function submitForm(req, res) {
   const {
-    params: {
+    query: {
       id: folderId,
     },
   } = req;
