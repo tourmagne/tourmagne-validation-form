@@ -23,8 +23,8 @@ function buildContent({
   challengerFolderId,
   submissionFolderId,
 }) {
-  const html = `New files uploaded in folder ${challengerFolderId}/${submissionFolderId}`;
-  const text = `<p>New files <strong>uploaded</strong> in folder ${challengerFolderId}/${submissionFolderId}</p>`;
+  const html = `<p>New files <strong>uploaded</strong> in folder <a href='https://drive.google.com/drive/folders/${submissionFolderId}'>click</a></p>`;
+  const text = `New files uploaded in folder ${challengerFolderId}/${submissionFolderId}`;
 
   return {
     html,

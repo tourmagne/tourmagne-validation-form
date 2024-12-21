@@ -22,7 +22,7 @@ async function validate(req, res) {
     },
   } = req;
 
-  const auth = await gdrive.authorize();
+  const auth = await gdrive.getAuthorization();
 
   const submissionFolderName = new Date().toISOString();
 
@@ -98,14 +98,14 @@ async function validate(req, res) {
   const fileNames = await gdrive.listFiles({ auth });
 
   console.log(fileNames);
-  console.log('Nb de fichiers sur Google Drive', fileNames.length);
+  console.log('Nb de fichiers et dossiers appartenant au compte de service sur Google Drive', fileNames.length);
 
   await mailer.notify({
     challengerFolderId,
     submissionFolderId,
   });
 
-  res.send('OK');
+  res.render('submissionSuccess');
 };
 
 module.exports = validate;
