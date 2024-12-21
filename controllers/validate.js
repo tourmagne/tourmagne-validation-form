@@ -5,9 +5,10 @@ const path = require('path');
 
 const {
   gdrive,
+  mailer,
 } = require('../services');
 
-const UPLOAD_PATH = path.resolve(__dirname, '../../uploads');
+const UPLOAD_PATH = path.resolve(__dirname, '../uploads');
 
 async function validate(req, res) {
   const {
@@ -44,6 +45,8 @@ async function validate(req, res) {
     folderId: submissionFolderId,
   });
 
+  await fs.unlink(textPath);
+
   // Photos
   for (const photoFile of photoFiles) {
     const {
@@ -52,18 +55,20 @@ async function validate(req, res) {
       size,
     } = photoFile;
 
+    const filePath = path.resolve(UPLOAD_PATH, filename);
+
     if (size > 50_000) {
       console.log(`File ${originalname} too big, won't be uploaded`);
-      continue;
+    } else {
+      await gdrive.uploadFile({
+        auth,
+        fileName: originalname,
+        filePath,
+        folderId: submissionFolderId,
+      });
     }
 
-    const filePath = path.resolve(UPLOAD_PATH, filename);
-    await gdrive.uploadFile({
-      auth,
-      fileName: originalname,
-      filePath,
-      folderId: submissionFolderId,
-    });
+    await fs.unlink(filePath);
   }
 
   // Gpx
@@ -86,11 +91,19 @@ async function validate(req, res) {
       filePath,
       folderId: gpxFolderId,
     });
+
+    await fs.unlink(filePath);
   }
 
   const fileNames = await gdrive.listFiles({ auth });
 
   console.log(fileNames);
+  console.log('Nb de fichiers sur Google Drive', fileNames.length);
+
+  await mailer.notify({
+    challengerFolderId,
+    submissionFolderId,
+  });
 
   res.send('OK');
 };

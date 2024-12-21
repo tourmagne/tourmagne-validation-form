@@ -20,7 +20,7 @@ app.engine('hbs', exphbs.engine({
 app.set('view engine', 'hbs');
 app.set('views', path.join(__dirname, 'views'));
 
-const upload = multer({ dest: path.join(__dirname, '../uploads/') });
+const upload = multer({ dest: path.join(__dirname, 'uploads') });
 
 // Middlewares
 // app.use(express.urlencoded({ extended: true }));
