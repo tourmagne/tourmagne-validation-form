@@ -7,7 +7,7 @@ const multer = require('multer');
 const path = require('path');
 
 const displayForm = require('./controllers/displayForm');
-const validateData = require('./controllers/validateData');
+const uploadDataToDrive = require('./controllers/uploadDataToDrive');
 
 const app = express();
 
@@ -32,7 +32,7 @@ app.get('/', displayForm);
 app.post('/', upload.fields([
   { name: 'photoFiles', maxCount: 5 },
   { name: 'gpxFiles', maxCount: 20 },
-]), asyncHandler(validateData));
+]), asyncHandler(uploadDataToDrive));
 
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
