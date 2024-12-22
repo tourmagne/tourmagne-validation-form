@@ -4,13 +4,14 @@ const fs = require('fs').promises;
 const path = require('path');
 
 const {
+  findIssuesInGpxFiles,
   gdrive,
   mailer,
 } = require('../services');
 
 const UPLOAD_PATH = path.resolve(__dirname, '../uploads');
 
-async function validate(req, res) {
+async function validateData(req, res) {
   const {
     body: {
       challengerFolderId,
@@ -21,6 +22,20 @@ async function validate(req, res) {
       gpxFiles,
     },
   } = req;
+
+  const gpxIssue = findIssuesInGpxFiles(gpxFiles);
+
+  if (gpxIssue) {
+    const locals = {
+      challengerFolderId,
+      gpxIssue,
+      result: 'Les traces GPX soumises ne sont pas conformes',
+    };
+
+    res.render('form', locals);
+
+    return;
+  }
 
   const auth = await gdrive.getAuthorization();
 
@@ -105,7 +120,13 @@ async function validate(req, res) {
     submissionFolderId,
   });
 
-  res.render('submissionSuccess');
+  const locals = {
+    challengerFolderId,
+    infos: 'Vous pouvez fermer cette fenêtre',
+    result: 'Données soumises !',
+  };
+
+  res.render('form', locals);
 };
 
-module.exports = validate;
+module.exports = validateData;

@@ -62,3 +62,7 @@ li {
 .light {
   background-color: var(--light);
 }
+
+.error {
+  color: var(--red);
+}

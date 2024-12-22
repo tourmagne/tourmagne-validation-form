@@ -6,8 +6,8 @@ const exphbs = require('express-handlebars');
 const multer = require('multer');
 const path = require('path');
 
-const submitForm = require('./controllers/submitForm');
-const validate = require('./controllers/validate');
+const displayForm = require('./controllers/displayForm');
+const validateData = require('./controllers/validateData');
 
 const app = express();
 
@@ -25,14 +25,14 @@ const upload = multer({ dest: path.join(__dirname, 'uploads') });
 // Middlewares
 // app.use(express.urlencoded({ extended: true }));
 app.use(express.json()); // body parser
-app.use(express.static(path.join(__dirname, 'public')));
+app.use('/public', express.static(path.join(__dirname, 'public')));
 
 // Mount routes
-app.get('/', submitForm);
-app.post('/validator', upload.fields([
+app.get('/', displayForm);
+app.post('/', upload.fields([
   { name: 'photoFiles', maxCount: 5 },
   { name: 'gpxFiles', maxCount: 20 },
-]), asyncHandler(validate));
+]), asyncHandler(validateData));
 
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
