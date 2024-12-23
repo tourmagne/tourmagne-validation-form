@@ -17,7 +17,14 @@ async function submitForm(event) {
   const challengerFolderIdEl = document.getElementById('challengerFolderId');
   const textInputEl = document.getElementById('textInput');
 
+  const gpxErrorsEl = document.getElementById('gpxErrors');
   const messageEl = document.querySelector('#message');
+  const resultsEl = document.querySelector('#results');
+  const successInfosEl = document.getElementById('successInfos');
+  const submitButtonEl = document.getElementById('submitButton');
+
+  submitButtonEl.disabled = true;
+  gpxErrorsEl.innerText = '';
 
   const challengerFolderId = challengerFolderIdEl.value;
   const text = textInputEl.value;
@@ -50,11 +57,13 @@ async function submitForm(event) {
     messageEl.innerHTML = '';
 
     if (!issueString) {
-      document.getElementById('result').innerText = 'Données soumises !';
-      document.getElementById('infos').innerText = 'Vous pouvez fermer cette fenêtre';
+      resultsEl.classList.remove('d-none');
+      const successInfosHTML = `<p>Les données suivantes ont bien été prises en compte:<p>
+      <ul>Votre texte ci-dessus</ul>`;
+      successInfosEl.innerHTML = successInfosHTML;
     } else {
-      document.getElementById('result').innerText = 'Vos fichiers GPX ne sont pas conformes';
-      document.getElementById('infos').innerText = issueString;
+      gpxErrorsEl.innerText = issueString;
+      submitButtonEl.disabled = false;
     }
   } catch (error) {
     console.error('Error:', error);

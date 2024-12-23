@@ -1,13 +1,12 @@
 <main class='container'>
   <h1 class='text-center'>Soumission des données du challenger</h1>
-  <div id='message' class='fixed-top bg-danger rounded text-white text-center p-2 fs-2 m-4 d-none'></div>
   <section>
     <h2 class='text-center'>Données à saisir</h2>
     <form id='form' method='POST' enctype='multipart/form-data'>
       <section class='light'>
         <div class='form-group'>
           <label for='text'>Texte</label>
-          <textarea id='textInput' name='text' rows='10' class='form-control' required>{{textInput}}</textarea>
+          <textarea id='textInput' name='text' rows='10' class='form-control' required>Raconte nous ton challenge du Tourmagne ici...</textarea>
         </div>
         <div class='form-group'>
           <label for='photoFiles'>Photos</label>
@@ -16,18 +15,17 @@
         <div class='form-group'>
           <label for='gpxFiles'>Traces GPX</label>
           <input id='gpxFilesInput' name='gpxFiles' type='file' class='form-control' accept='.gpx' multiple required />
-          <p id='gpxErrors' class='red'></p>
+          <p id='gpxErrors' class='error'></p>
         </div>
         <input id='challengerFolderId' name='challengerFolderId' type='hidden' value='{{challengerFolderId}}'>
       </section>
       <button id='submitButton' type='submit' class='btn btn-primary'>Soumettre mes données</button>
     </form>
   </section>
-  <section>
-    <h2 id='result'>{{result}}</h2>
-    <section class='light'>
-      <p id='infos'>{{infos}}</p>
-    </section>
+  <div id='message' class='bg-warning rounded text-white text-center p-2 fs-2 m-4 d-none'></div>
+  <section id='results' class='d-none'>
+    <h2>Vos données ont bien été soumises :</h2>
+    <section id='successInfos' class='light'></section>
   </section>
 </main>
 <script src='public/index.js'></script>

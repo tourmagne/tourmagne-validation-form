@@ -9,7 +9,6 @@ function displayForm(req, res) {
 
   const locals = {
     challengerFolderId,
-    textInput: 'Raconte nous une anecdote ici...',
   };
 
   res.render('form', locals);
