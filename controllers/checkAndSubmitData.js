@@ -11,14 +11,14 @@ const {
 
 const UPLOAD_PATH = path.resolve(__dirname, '../uploads');
 
-async function uploadDataToDrive(req, res) {
+async function checkAndSubmitData(req, res) {
   const {
     body: {
       challengerFolderId,
       text,
     },
     files: {
-      photoFiles,
+      photoFiles = [],
       gpxFiles,
     },
   } = req;
@@ -129,4 +129,4 @@ async function uploadDataToDrive(req, res) {
   res.send();
 };
 
-module.exports = uploadDataToDrive;
+module.exports = checkAndSubmitData;

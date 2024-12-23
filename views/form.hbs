@@ -10,12 +10,12 @@
         </div>
         <div class='form-group'>
           <label for='photoFiles'>Photos</label>
-          <input id='photoFilesInput' name='photoFiles' type='file' class='form-control' accept='image/*' multiple required />
+          <input id='photoFilesInput' name='photoFiles' type='file' class='form-control' accept='image/*' multiple />
         </div>
         <div class='form-group'>
           <label for='gpxFiles'>Traces GPX</label>
           <input id='gpxFilesInput' name='gpxFiles' type='file' class='form-control' accept='.gpx' multiple required />
-          <p id='gpxErrors' class='error'></p>
+          <p id='gpxErrors' class='text-danger'></p>
         </div>
         <input id='challengerFolderId' name='challengerFolderId' type='hidden' value='{{challengerFolderId}}'>
       </section>
@@ -24,8 +24,15 @@
   </section>
   <div id='message' class='bg-warning rounded text-white text-center p-2 fs-2 m-4 d-none'></div>
   <section id='results' class='d-none'>
-    <h2>Vos données ont bien été soumises :</h2>
-    <section id='successInfos' class='light'></section>
+    <h2>Les données suivantes ont bien été soumises :</h2>
+    <section class='light'>
+      <ul class='light'>
+        <li id='successText'></li>
+        <li id='successPhotos'></li>
+        <li id='successGpx'></li>
+      </ul>
+      <p><strong>Ne soumettez plus aucun fichier, nous allons les traiter et vous faire un retour par email sous une semaine.</strong></p>
+    </section>
   </section>
 </main>
 <script src='public/index.js'></script>

@@ -20,10 +20,11 @@ async function submitForm(event) {
   const gpxErrorsEl = document.getElementById('gpxErrors');
   const messageEl = document.querySelector('#message');
   const resultsEl = document.querySelector('#results');
-  const successInfosEl = document.getElementById('successInfos');
   const submitButtonEl = document.getElementById('submitButton');
 
   submitButtonEl.disabled = true;
+  gpxFilesInputEl.disabled = true;
+  photoFilesInputEl.disabled = true;
   gpxErrorsEl.innerText = '';
 
   const challengerFolderId = challengerFolderIdEl.value;
@@ -58,12 +59,14 @@ async function submitForm(event) {
 
     if (!issueString) {
       resultsEl.classList.remove('d-none');
-      const successInfosHTML = `<p>Les données suivantes ont bien été prises en compte:<p>
-      <ul>Votre texte ci-dessus</ul>`;
-      successInfosEl.innerHTML = successInfosHTML;
+      document.getElementById('successText').innerText = 'text';
+      document.getElementById('successPhotos').innerText = 'photoFilelist';
+      document.getElementById('successGpx').innerText = 'gpxFilelist';
     } else {
       gpxErrorsEl.innerText = issueString;
       submitButtonEl.disabled = false;
+      gpxFilesInputEl.disabled = false;
+      photoFilesInputEl.disabled = false;
     }
   } catch (error) {
     console.error('Error:', error);
