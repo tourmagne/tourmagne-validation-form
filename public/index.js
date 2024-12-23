@@ -17,6 +17,8 @@ async function submitForm(event) {
   const challengerFolderIdEl = document.getElementById('challengerFolderId');
   const textInputEl = document.getElementById('textInput');
 
+  const messageEl = document.querySelector('#message');
+
   const challengerFolderId = challengerFolderIdEl.value;
   const text = textInputEl.value;
 
@@ -34,12 +36,18 @@ async function submitForm(event) {
   formData.append('challengerFolderId', challengerFolderId);
 
   try {
+    messageEl.innerHTML = 'Analyse des fichiers en cours';
+    messageEl.classList.toggle('d-none');
+
     const response = await fetch('/', {
       method: 'POST',
       body: formData,
     });
 
     const issueString = await response.text();
+
+    messageEl.classList.toggle('d-none');
+    messageEl.innerHTML = '';
 
     if (!issueString) {
       document.getElementById('result').innerText = 'Données soumises !';
