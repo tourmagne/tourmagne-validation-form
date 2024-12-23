@@ -33,6 +33,14 @@ async function uploadDataToDrive(req, res) {
   const issueString = await checkGpx(strs);
 
   if (issueString) {
+    for (const file of [...photoFiles, ...gpxFiles]) {
+      const {
+        path,
+      } = file;
+
+      await fs.unlink(path);
+    }
+
     res.send(issueString);
 
     return;
@@ -66,12 +74,10 @@ async function uploadDataToDrive(req, res) {
   // Photos
   for (const photoFile of photoFiles) {
     const {
-      filename,
       originalname,
+      path,
       size,
     } = photoFile;
-
-    const filePath = path.resolve(UPLOAD_PATH, filename);
 
     if (size > 50_000) {
       console.log(`File ${originalname} too big, won't be uploaded`);
@@ -79,12 +85,12 @@ async function uploadDataToDrive(req, res) {
       await gdrive.uploadFile({
         auth,
         fileName: originalname,
-        filePath,
+        filePath: path,
         folderId: submissionFolderId,
       });
     }
 
-    await fs.unlink(filePath);
+    await fs.unlink(path);
   }
 
   // Gpx
@@ -96,19 +102,18 @@ async function uploadDataToDrive(req, res) {
 
   for (const gpxFile of gpxFiles) {
     const {
-      filename,
       originalname,
+      path,
     } = gpxFile;
 
-    const filePath = path.resolve(UPLOAD_PATH, filename);
     await gdrive.uploadFile({
       auth,
       fileName: originalname,
-      filePath,
+      filePath: path,
       folderId: gpxFolderId,
     });
 
-    await fs.unlink(filePath);
+    await fs.unlink(path);
   }
 
   const fileNames = await gdrive.listFiles({ auth });
