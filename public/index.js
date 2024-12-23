@@ -1,43 +1,54 @@
-/* eslint-disable no-undef */
 'use strict';
 
-document.getElementById('form').addEventListener('submit', async (event) => {
+/* eslint-disable no-undef */
+
+// ------ DOM ------//
+const formEl = document.getElementById('form');
+
+// ------ EVENT LISTENERS ------//
+formEl.addEventListener('submit', submitForm);
+
+// ------ METHODS ------//
+async function submitForm(event) {
   event.preventDefault(); // Prevent the default form submission
 
-  const challengerFolderId = document.getElementById('challengerFolderId').value;
-  const gpxFilesInput = document.getElementById('gpxFilesInput').value;
-  const photoFilesInput = document.getElementById('photoFilesInput').value;
-  const textInput = document.getElementById('textInput').value;
+  const gpxFilesInputEl = document.getElementById('gpxFilesInput');
+  const photoFilesInputEl = document.getElementById('photoFilesInput');
+  const challengerFolderIdEl = document.getElementById('challengerFolderId');
+  const textInputEl = document.getElementById('textInput');
 
-  const gpxErrors = document.getElementById('gpxErrors');
+  const challengerFolderId = challengerFolderIdEl.value;
+  const text = textInputEl.value;
+
+  const formData = new FormData();
+
+  for (const file of gpxFilesInputEl.files) {
+    formData.append('gpxFiles', file);
+  }
+
+  for (const file of photoFilesInputEl.files) {
+    formData.append('photoFiles', file);
+  }
+
+  formData.append('text', text);
+  formData.append('challengerFolderId', challengerFolderId);
 
   try {
-    const gpxIssueString = await checkGpxFiles(gpxFilesInput);
+    const response = await fetch('/', {
+      method: 'POST',
+      body: formData,
+    });
 
-    if (gpxIssueString) {
-      gpxErrors.innerText = gpxIssueString;
+    const issueString = await response.text();
+
+    if (!issueString) {
+      document.getElementById('result').innerText = 'Données soumises !';
+      document.getElementById('infos').innerText = 'Vous pouvez fermer cette fenêtre';
     } else {
-      await fetch('/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          text: textInput,
-          photoFiles: photoFilesInput,
-          gpxFiles: gpxFilesInput,
-          challengerFolderId,
-        }),
-      });
+      document.getElementById('result').innerText = 'Vos fichiers GPX ne sont pas conformes';
+      document.getElementById('infos').innerText = issueString;
     }
   } catch (error) {
     console.error('Error:', error);
   }
-});
-
-function checkGpxFiles(gpxFiles) {
-  // const gpxIssueString = 'Timestamps manquantes';
-  const gpxIssueString = undefined;
-
-  return gpxIssueString;
-}
+};

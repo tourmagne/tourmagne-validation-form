@@ -29,10 +29,12 @@ app.use('/public', express.static(path.join(__dirname, 'public')));
 
 // Mount routes
 app.get('/', displayForm);
-app.post('/', upload.fields([
-  { name: 'photoFiles', maxCount: 5 },
-  { name: 'gpxFiles', maxCount: 20 },
-]), asyncHandler(uploadDataToDrive));
+app.post('/',
+  upload.fields([
+    { name: 'photoFiles', maxCount: 5 },
+    { name: 'gpxFiles', maxCount: 20 },
+  ]),
+  asyncHandler(uploadDataToDrive));
 
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {

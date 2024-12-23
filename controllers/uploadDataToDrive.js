@@ -4,6 +4,7 @@ const fs = require('fs').promises;
 const path = require('path');
 
 const {
+  checkGpx,
   gdrive,
   mailer,
 } = require('../services');
@@ -21,6 +22,21 @@ async function uploadDataToDrive(req, res) {
       gpxFiles,
     },
   } = req;
+
+  const strsPromises = gpxFiles.map(async (file) => {
+    const str = await fs.readFile(file.path, 'utf-8');
+
+    return str;
+  });
+
+  const strs = await Promise.all(strsPromises);
+  const issueString = await checkGpx(strs);
+
+  if (issueString) {
+    res.send(issueString);
+
+    return;
+  }
 
   const auth = await gdrive.getAuthorization();
 
@@ -105,13 +121,7 @@ async function uploadDataToDrive(req, res) {
     submissionFolderId,
   });
 
-  const locals = {
-    challengerFolderId,
-    infos: 'Vous pouvez fermer cette fenêtre',
-    result: 'Données soumises !',
-  };
-
-  res.render('form', locals);
+  res.send();
 };
 
 module.exports = uploadDataToDrive;
