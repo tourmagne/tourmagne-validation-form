@@ -51,8 +51,8 @@ async function submitForm(event) {
     if (success) {
       document.querySelector('#results').classList.remove('d-none');
       document.getElementById('successText').innerText = `Texte : ${data.text}`;
-      document.getElementById('successPhotos').innerText = `Photos : ${data.photoFilelist.join(', ')}`;
-      document.getElementById('successGpx').innerText = `Fichiers GPX : ${data.gpxFilelist.join(', ')}`;
+      document.getElementById('successPhotos').innerText = `Photos : ${data.photoFilelist.maps((el) => `"${el}"`).join(', ')}`;
+      document.getElementById('successGpx').innerText = `Fichiers GPX : ${data.gpxFilelist.maps((el) => `"${el}"`).join(', ')}`;
     } else {
       const {
         issues: {
