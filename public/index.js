@@ -2,68 +2,70 @@
 
 /* eslint-disable no-undef */
 
-// ------ DOM ------//
-const formEl = document.getElementById('form');
+document.getElementById('form').addEventListener('submit', submitForm);
 
-// ------ EVENT LISTENERS ------//
-formEl.addEventListener('submit', submitForm);
-
-// ------ METHODS ------//
 async function submitForm(event) {
-  event.preventDefault(); // Prevent the default form submission
+  event.preventDefault();
 
+  const gpxIssuesEl = document.getElementById('gpxErrors');
   const gpxFilesInputEl = document.getElementById('gpxFilesInput');
-  const photoFilesInputEl = document.getElementById('photoFilesInput');
-  const challengerFolderIdEl = document.getElementById('challengerFolderId');
-  const textInputEl = document.getElementById('textInput');
-
-  const gpxErrorsEl = document.getElementById('gpxErrors');
   const messageEl = document.querySelector('#message');
-  const resultsEl = document.querySelector('#results');
+  const photoFilesInputEl = document.getElementById('photoFilesInput');
+  const photoIssuesEl = document.getElementById('photoErrors');
   const submitButtonEl = document.getElementById('submitButton');
 
-  submitButtonEl.disabled = true;
+  // Update the display when the submit button is clicked
+  gpxIssuesEl.innerText = '';
   gpxFilesInputEl.disabled = true;
+  messageEl.innerHTML = 'Analyse des fichiers en cours';
+  messageEl.classList.toggle('d-none');
+  photoIssuesEl.innerText = '';
   photoFilesInputEl.disabled = true;
-  gpxErrorsEl.innerText = '';
+  submitButtonEl.disabled = true;
 
-  const challengerFolderId = challengerFolderIdEl.value;
-  const text = textInputEl.value;
-
+  // Build a FormData object to POST the form later
   const formData = new FormData();
-
-  for (const file of gpxFilesInputEl.files) {
-    formData.append('gpxFiles', file);
-  }
-
-  for (const file of photoFilesInputEl.files) {
-    formData.append('photoFiles', file);
-  }
-
-  formData.append('text', text);
-  formData.append('challengerFolderId', challengerFolderId);
+  formData.append('challengerFolderId', document.getElementById('challengerFolderId').value);
+  formData.append('text', document.getElementById('textInput').value);
+  Array.from(gpxFilesInputEl.files).forEach((file) => formData.append('gpxFiles', file));
+  Array.from(photoFilesInputEl.files).forEach((file) => formData.append('photoFiles', file));
 
   try {
-    messageEl.innerHTML = 'Analyse des fichiers en cours';
-    messageEl.classList.toggle('d-none');
-
+    // POST the form data to check and maybe upload data
     const response = await fetch('/', {
       method: 'POST',
       body: formData,
     });
 
-    const issueString = await response.text();
+    const json = await response.json();
 
+    const {
+      success,
+      data,
+    } = json;
+
+    // Update the display when data check and potential updload of the file is finishd
     messageEl.classList.toggle('d-none');
     messageEl.innerHTML = '';
 
-    if (!issueString) {
-      resultsEl.classList.remove('d-none');
-      document.getElementById('successText').innerText = 'text';
-      document.getElementById('successPhotos').innerText = 'photoFilelist';
-      document.getElementById('successGpx').innerText = 'gpxFilelist';
+    if (success) {
+      document.querySelector('#results').classList.remove('d-none');
+      document.getElementById('successText').innerText = `Texte : ${data.text}`;
+      document.getElementById('successPhotos').innerText = `Photos : ${data.photoFilelist.join(', ')}`;
+      document.getElementById('successGpx').innerText = `Fichiers GPX : ${data.gpxFilelist.join(', ')}`;
     } else {
-      gpxErrorsEl.innerText = issueString;
+      const {
+        issues: {
+          gpxIssues,
+          photoIssues,
+        },
+      } = data;
+
+      const gpxIssuesString = gpxIssues?.join('\n');
+      const photoIssuesString = photoIssues?.join('\n');
+
+      gpxIssuesEl.innerText = gpxIssuesString;
+      photoIssuesEl.innerText = photoIssuesString;
       submitButtonEl.disabled = false;
       gpxFilesInputEl.disabled = false;
       photoFilesInputEl.disabled = false;

@@ -1,6 +1,6 @@
 const { XMLParser } = require('fast-xml-parser');
 
-const checkGpx = async (strs) => {
+const checkGpx = async (fileContentArray) => {
   const parser = new XMLParser({
     ignoreAttributes: false,
     parseAttributeValue: true,
@@ -11,7 +11,7 @@ const checkGpx = async (strs) => {
   // 1st level represents the file
   // 2nd level reprensents <trkseg>
   // 3rd level represent <trkpt>
-  const trkptsArr = strs.map((str) => {
+  const trkptsArr = fileContentArray.map((str) => {
     const gpx = parser.parse(str);
     const trks = gpx?.gpx?.trk;
 
