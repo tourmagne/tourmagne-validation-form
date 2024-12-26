@@ -11,16 +11,17 @@
         <div class='form-group'>
           <label for='photoFilesInput'>Photos (max {{maxPhotoNb}} photos, {{maxFileSizeMo}} Mo chacune)</label>
           <input id='photoFilesInput' name='photoFiles' type='file' class='form-control' accept='image/*' multiple />
-          <p id='photoErrors' class='text-danger'></p>
+          <p id='photoIssues' class='text-danger'></p>
         </div>
         <div class='form-group'>
           <label for='gpxFilesInput'>Traces GPX (max {{maxGpxNb}} fichiers GPX, {{maxFileSizeMo}} Mo chacun) </label>
           <input id='gpxFilesInput' name='gpxFiles' type='file' class='form-control' accept='.gpx' multiple required />
-          <p id='gpxErrors' class='text-danger'></p>
+          <p id='gpxIssues' class='text-danger'></p>
         </div>
         <input id='challengerFolderId' name='challengerFolderId' type='hidden' value='{{challengerFolderId}}'>
       </section>
       <button id='submitButton' type='submit' class='btn btn-primary'>Soumettre mes données</button>
+      <p id='genericIssues' class='text-danger light my-2'></p>
     </form>
   </section>
   <div id='message' class='bg-warning rounded text-white text-center p-2 fs-2 m-4 d-none'></div>

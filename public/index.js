@@ -7,11 +7,12 @@ document.getElementById('form').addEventListener('submit', submitForm);
 async function submitForm(event) {
   event.preventDefault();
 
-  const gpxIssuesEl = document.getElementById('gpxErrors');
+  const genericIssuesEl = document.getElementById('genericIssues');
+  const gpxIssuesEl = document.getElementById('gpxIssues');
   const gpxFilesInputEl = document.getElementById('gpxFilesInput');
   const messageEl = document.querySelector('#message');
   const photoFilesInputEl = document.getElementById('photoFilesInput');
-  const photoIssuesEl = document.getElementById('photoErrors');
+  const photoIssuesEl = document.getElementById('photoIssues');
   const submitButtonEl = document.getElementById('submitButton');
 
   // Update the display when the submit button is clicked
@@ -35,6 +36,10 @@ async function submitForm(event) {
     const response = await fetch('/', {
       method: 'POST',
       body: formData,
+      // header so that req.xhr is true => error handled differently
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+      },
     });
 
     const json = await response.json();
@@ -56,14 +61,17 @@ async function submitForm(event) {
     } else {
       const {
         issues: {
-          gpxIssues,
-          photoIssues,
+          genericIssues = [],
+          gpxIssues = [],
+          photoIssues = [],
         },
       } = data;
 
+      const genericIssuesString = genericIssues?.join('\n');
       const gpxIssuesString = gpxIssues?.join('\n');
       const photoIssuesString = photoIssues?.join('\n');
 
+      genericIssuesEl.innerText = genericIssuesString,
       gpxIssuesEl.innerText = gpxIssuesString;
       photoIssuesEl.innerText = photoIssuesString;
       submitButtonEl.disabled = false;

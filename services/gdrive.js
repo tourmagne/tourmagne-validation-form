@@ -71,7 +71,7 @@ async function listFiles({ auth }) {
  * @param {string} params.filePath Absolute path of the file to upload
  * @param {string} params.folderId Id of the folder to put the file in
  */
-async function uploadFile({ auth, fileName, filePath, folderId }) {
+async function saveFile({ auth, fileName, filePath, folderId }) {
   const drive = google.drive({ version: 'v3', auth });
 
   const fileSize = fs.statSync(filePath).size;
@@ -140,5 +140,5 @@ module.exports = {
   deleteAllFiles,
   createFolder,
   listFiles,
-  uploadFile,
+  saveFile,
 };

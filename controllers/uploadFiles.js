@@ -88,10 +88,10 @@ function uploadFiles(req, res, next) {
     }
 
     if (err) {
-      throw err;
+      next(err);
+    } else {
+      next();
     }
-
-    next();
   });
 }
 

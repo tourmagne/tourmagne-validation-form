@@ -5,7 +5,7 @@ const express = require('express');
 const exphbs = require('express-handlebars');
 const path = require('path');
 
-const checkAndUploadData = require('./controllers/checkAndUploadData');
+const checkAndSaveData = require('./controllers/checkAndSaveData');
 const displayForm = require('./controllers/displayForm');
 const uploadFiles = require('./controllers/uploadFiles');
 
@@ -27,12 +27,26 @@ app.use('/public', express.static(path.join(__dirname, 'public')));
 // Mount routes
 app.get('/', displayForm);
 app.post('/',
-  asyncHandler(uploadFiles),
-  asyncHandler(checkAndUploadData));
+  uploadFiles,
+  asyncHandler(checkAndSaveData),
+);
 
-// eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
-  res.status(500).send('Internal Server Error');
+  if (req.xhr) {
+    res.status(500).json({
+      sucess: false,
+      data: {
+        issues: {
+          genericIssues: [err.message],
+        },
+      },
+    });
+
+    return;
+  }
+
+  // Default error handeler
+  next(err);
 });
 
 module.exports = app;

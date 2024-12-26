@@ -23,7 +23,7 @@ async function deleteFiles(files) {
   }
 }
 
-async function uploadFiles({
+async function saveFiles({
   auth,
   files,
   folderId,
@@ -34,7 +34,7 @@ async function uploadFiles({
       path,
     } = file;
 
-    return gdrive.uploadFile({
+    return gdrive.saveFile({
       auth,
       fileName: originalname,
       filePath: path,
@@ -45,7 +45,7 @@ async function uploadFiles({
   await Promise.all(promises);
 }
 
-async function checkAndUploadData(req, res) {
+async function checkAndSaveData(req, res) {
   const {
     body: {
       challengerFolderId,
@@ -104,7 +104,7 @@ async function checkAndUploadData(req, res) {
 
   await fs.writeFile(textPath, text);
 
-  await gdrive.uploadFile({
+  await gdrive.saveFile({
     auth,
     fileName: 'Challenger text.txt',
     filePath: textPath,
@@ -114,7 +114,7 @@ async function checkAndUploadData(req, res) {
   await fs.unlink(textPath);
 
   // Upload photos
-  await uploadFiles({
+  await saveFiles({
     auth,
     files: photoFiles,
     folderId: submissionFolderId,
@@ -127,7 +127,7 @@ async function checkAndUploadData(req, res) {
     parent: submissionFolderId,
   });
 
-  await uploadFiles({
+  await saveFiles({
     auth,
     files: gpxFiles,
     folderId: gpxFolderId,
@@ -155,4 +155,4 @@ async function checkAndUploadData(req, res) {
   });
 };
 
-module.exports = checkAndUploadData;
+module.exports = checkAndSaveData;
