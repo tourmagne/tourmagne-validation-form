@@ -4,11 +4,12 @@ const multer = require('multer');
 const path = require('path');
 
 const {
+  MAX_FILE_SIZE,
   MAX_GPX_NB,
-  MAX_GPX_SIZE,
   MAX_PHOTO_NB,
-  MAX_PHOTO_SIZE,
 } = require('../constants');
+
+const LIMIT_FILE_SIZE = 'LIMIT_FILE_SIZE';
 
 // Custom file filter to check file number (maxCount does not work well https://github.com/expressjs/multer/issues/1057)
 const fileFilter = (req, file, cb) => {
@@ -41,11 +42,10 @@ function uploadFiles(req, res, next) {
   };
 
   const upload = multer({
-    dest: path.join(__dirname, 'uploads'),
+    dest: path.join(__dirname, '../uploads'),
     fileFilter,
     limits: {
-      // Set the global maximum file size to the largest possible size for all fields
-      fileSize: Math.max(MAX_GPX_SIZE, MAX_PHOTO_SIZE),
+      fileSize: Math.max(MAX_FILE_SIZE),
     },
   }).fields([
     { name: 'photoFiles' },
@@ -64,6 +64,16 @@ function uploadFiles(req, res, next) {
 
     if (req.user.hasTooManyPhotoFiles) {
       issues.photoIssues.push(`Le nombre de photos dépasse le maximum (${MAX_PHOTO_NB} maximum)`);
+    }
+
+    if (err && err instanceof multer.MulterError && err.code === LIMIT_FILE_SIZE) {
+      if (err.field === 'gpxFiles') {
+        issues.gpxIssues.push(`Certains fichiers GPX sont trop volumineux (max: ${MAX_FILE_SIZE / (1024 * 1024)} Mo)`);
+      }
+
+      if (err.field === 'photoFiles') {
+        issues.gpxIssues.push(`Certaines photos sont trop volumineuses (max: ${MAX_FILE_SIZE / (1024 * 1024)} Mo)`);
+      }
     }
 
     if (issues.gpxIssues.length || issues.photoIssues.length) {

@@ -1,10 +1,9 @@
 'use strict';
 
 const {
+  MAX_FILE_SIZE,
   MAX_GPX_NB,
-  MAX_GPX_SIZE,
   MAX_PHOTO_NB,
-  MAX_PHOTO_SIZE,
 } = require('../constants');
 
 function displayForm(req, res) {
@@ -16,10 +15,9 @@ function displayForm(req, res) {
 
   const locals = {
     challengerFolderId,
+    maxFileSizeMo: MAX_FILE_SIZE / (1024 * 1024),
     maxGpxNb: MAX_GPX_NB,
-    maxGpxSizeMo: MAX_GPX_SIZE / (1024 * 1024),
     maxPhotoNb: MAX_PHOTO_NB,
-    maxPhotoSizeMo: MAX_PHOTO_SIZE / (1024 * 1024),
   };
 
   res.render('form', locals);

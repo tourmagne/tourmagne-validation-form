@@ -4,10 +4,6 @@ const fs = require('fs').promises;
 const path = require('path');
 
 const {
-  MAX_GPX_SIZE,
-  MAX_PHOTO_SIZE,
-} = require('../constants');
-const {
   checkGpx,
   gdrive,
   mailer,
@@ -25,15 +21,6 @@ async function deleteFiles(files) {
   } catch (error) {
     console.error('Error deleting files:', error);
   }
-}
-
-function checkFileSize({
-  files,
-  maxSize,
-}) {
-  return files
-    .filter((file) => file.size > maxSize)
-    .map((file) => `Fichier trop volumineux : ${file.originalname} (max: ${maxSize / (1024 * 1024)} Mo)`);
 }
 
 async function uploadFiles({
@@ -70,35 +57,10 @@ async function checkAndUploadData(req, res) {
     },
   } = req;
 
-  // Check files size
-  const gpxIssues = checkFileSize({
-    files: gpxFiles,
-    maxSize: MAX_GPX_SIZE,
-  });
-
-  const photoIssues = checkFileSize({
-    files: photoFiles,
-    maxSize: MAX_PHOTO_SIZE,
-  });
-
   const issues = {
-    gpxIssues,
-    photoIssues,
+    gpxIssues: [],
+    photoIssues: [],
   };
-
-  // Early return if number or size of file issue
-  if (issues.gpxIssues.length || issues.photoIssues.length) {
-    await deleteFiles([...gpxFiles, ...photoFiles]);
-
-    res.json({
-      success: false,
-      data: {
-        issues,
-      },
-    });
-
-    return;
-  }
 
   // Check GPX files validity
   const fileContentPromises = gpxFiles.map(async (file) => {
@@ -156,7 +118,6 @@ async function checkAndUploadData(req, res) {
     auth,
     files: photoFiles,
     folderId: submissionFolderId,
-    maxSize: MAX_PHOTO_SIZE,
   });
 
   // Upload GPX files
@@ -170,7 +131,6 @@ async function checkAndUploadData(req, res) {
     auth,
     files: gpxFiles,
     folderId: gpxFolderId,
-    maxSize: MAX_GPX_SIZE,
   });
 
   // Delete gpx & photo files from server
