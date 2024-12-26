@@ -10,51 +10,63 @@ const {
   MAX_PHOTO_SIZE,
 } = require('../constants');
 
-// Custom file filter to check file size
+// Custom file filter to check file number (maxCount does not work well https://github.com/expressjs/multer/issues/1057)
 const fileFilter = (req, file, cb) => {
-  const fieldCounts = req.fieldCounts || {};
-  fieldCounts[file.fieldname] = (fieldCounts[file.fieldname] || 0) + 1;
+  const fieldCounts = req.user.fieldCounts || {};
+  const fieldName = file.fieldname;
 
-  req.fieldCounts = fieldCounts;
+  fieldCounts[fieldName] = (fieldCounts[fieldName] || 0) + 1;
 
-  if ((file.fieldname === 'photoFiles' && fieldCounts[file.fieldname] > MAX_PHOTO_NB)
-    || (file.fieldname === 'gpxFiles' && fieldCounts[file.fieldname] > MAX_GPX_NB)) {
-    return cb(new multer.MulterError('LIMIT_FILE_COUNT', file.fieldname), false);
+  req.user.fieldCounts = fieldCounts;
+
+  if (fieldName === 'photoFiles' && fieldCounts[fieldName] > MAX_PHOTO_NB) {
+    req.user.hasTooManyPhotoFiles = true;
+    cb(null, false);
   }
 
-  if ((file.fieldname === 'photoFiles' && file.size > MAX_PHOTO_SIZE)
-    || (file.fieldname === 'gpxFiles' && file.size > MAX_GPX_SIZE)) {
-    return cb(new multer.MulterError('LIMIT_FILE_SIZE', file.fieldname), false);
+  if (fieldName === 'gpxFiles' && fieldCounts[fieldName] > MAX_GPX_NB) {
+    req.user.hasTooManyGpxFiles = true;
+    cb(null, false);
   }
 
   cb(null, true); // Accept the file if it meets the requirements
 };
 
-const upload = multer({
-  dest: path.join(__dirname, 'uploads'),
-  fileFilter,
-}).fields([
-  { name: 'photoFiles' },
-  { name: 'gpxFiles' },
-]);
-
 function uploadFiles(req, res, next) {
+  // Store request specific data in request.user
+  req.user = {
+    fieldCounts: {},
+    hasTooManyGpxFiles: false,
+    hasTooManyPhotoFiles: false,
+  };
+
+  const upload = multer({
+    dest: path.join(__dirname, 'uploads'),
+    fileFilter,
+    limits: {
+      // Set the global maximum file size to the largest possible size for all fields
+      fileSize: Math.max(MAX_GPX_SIZE, MAX_PHOTO_SIZE),
+    },
+  }).fields([
+    { name: 'photoFiles' },
+    { name: 'gpxFiles' },
+  ]);
+
   upload(req, res, function (err) {
-    if (err && err instanceof multer.MulterError) {
-      // A Multer error occurred when uploading.
-      const issues = {
-        gpxIssues: [],
-        photoIssues: [],
-      };
+    const issues = {
+      gpxIssues: [],
+      photoIssues: [],
+    };
 
-      if (err.field === 'gpxFiles') {
-        issues.gpxIssues.push(err.message);
-      }
+    if (req.user.hasTooManyGpxFiles) {
+      issues.gpxIssues.push(`Le nombre de fichiers GPX dépasse le maximum (${MAX_GPX_NB} maximum)`);
+    }
 
-      if (err.field === 'photoFiles') {
-        issues.photoIssues.push(err.message);
-      }
+    if (req.user.hasTooManyPhotoFiles) {
+      issues.photoIssues.push(`Le nombre de photos dépasse le maximum (${MAX_PHOTO_NB} maximum)`);
+    }
 
+    if (issues.gpxIssues.length || issues.photoIssues.length) {
       res.json({
         success: false,
         data: {
@@ -63,7 +75,9 @@ function uploadFiles(req, res, next) {
       });
 
       return;
-    } else if (err) {
+    }
+
+    if (err) {
       throw err;
     }
 

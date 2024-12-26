@@ -4,9 +4,7 @@ const fs = require('fs').promises;
 const path = require('path');
 
 const {
-  MAX_GPX_NB,
   MAX_GPX_SIZE,
-  MAX_PHOTO_NB,
   MAX_PHOTO_SIZE,
 } = require('../constants');
 const {
@@ -35,7 +33,7 @@ function checkFileSize({
 }) {
   return files
     .filter((file) => file.size > maxSize)
-    .map((file) => file.originalname);
+    .map((file) => `Fichier trop volumineux : ${file.originalname} (max: ${maxSize / (1024 * 1024)} Mo)`);
 }
 
 async function uploadFiles({
@@ -72,34 +70,21 @@ async function checkAndUploadData(req, res) {
     },
   } = req;
 
-  const issues = {
-    gpxIssues: [],
-    photoIssues: [],
-  };
-
-  // Check number of files
-  if (gpxFiles.length > MAX_GPX_NB) {
-    issues.gpxIssues.push(`Vous avez soumis trop de fichiers GPX (max ${MAX_GPX_NB})`);
-  }
-
-  if (photoFiles.length > MAX_PHOTO_NB) {
-    issues.photoIssues.push(`Vous avez soumis trop de photos (max ${MAX_PHOTO_NB})`);
-  }
-
   // Check files size
-  const gpxSizeIssues = checkFileSize({
+  const gpxIssues = checkFileSize({
     files: gpxFiles,
     maxSize: MAX_GPX_SIZE,
   });
 
-  issues.gpxIssues.concat(gpxSizeIssues);
-
-  const photoSizeIssues = checkFileSize({
+  const photoIssues = checkFileSize({
     files: photoFiles,
     maxSize: MAX_PHOTO_SIZE,
   });
 
-  issues.photoIssues.concat(photoSizeIssues);
+  const issues = {
+    gpxIssues,
+    photoIssues,
+  };
 
   // Early return if number or size of file issue
   if (issues.gpxIssues.length || issues.photoIssues.length) {
