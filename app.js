@@ -3,6 +3,7 @@
 const asyncHandler = require('./utils/ayncHandler');
 const express = require('express');
 const exphbs = require('express-handlebars');
+const helmet = require('helmet');
 const path = require('path');
 
 const checkAndSaveData = require('./controllers/checkAndSaveData');
@@ -23,6 +24,16 @@ app.set('views', path.join(__dirname, 'views'));
 // Middlewares
 app.use(express.json()); // body parser
 app.use('/public', express.static(path.join(__dirname, 'public')));
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        'default-src': ['\'self\''],
+        'script-src': ['\'self\'', 'https://cdn.jsdelivr.net'],
+      },
+    },
+  }),
+);
 
 // Mount routes
 app.get('/', displayForm);
