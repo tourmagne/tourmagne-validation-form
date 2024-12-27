@@ -8,20 +8,7 @@ const {
   gdrive,
   mailer,
 } = require('../services');
-
-async function deleteFiles(files) {
-  try {
-    await Promise.all(
-      files.map(async (file) => {
-        const { path } = file;
-        await fs.unlink(path);
-      }),
-    );
-    console.log('All files deleted successfully!');
-  } catch (error) {
-    console.error('Error deleting files:', error);
-  }
-}
+const deleteFilesFromServer = require('./utils/deleteFilesFromServer');
 
 async function saveFiles({
   auth,
@@ -45,7 +32,7 @@ async function saveFiles({
   await Promise.all(promises);
 }
 
-async function checkAndSaveData(req, res) {
+async function checkAndSaveData(req, res, next) {
   const {
     body: {
       challengerFolderId,
@@ -58,8 +45,8 @@ async function checkAndSaveData(req, res) {
   } = req;
 
   const issues = {
-    gpxIssues: [],
-    photoIssues: [],
+    gpxFiles: [],
+    photoFiles: [],
   };
 
   // Check GPX files validity
@@ -74,9 +61,9 @@ async function checkAndSaveData(req, res) {
 
   // Early return if GPX files are not valid
   if (gpxContentIssue) {
-    await deleteFiles([...gpxFiles, ...photoFiles]);
+    await deleteFilesFromServer([...gpxFiles, ...photoFiles], next);
 
-    issues.gpxIssues.push(gpxContentIssue);
+    issues.gpxFiles.push(gpxContentIssue);
 
     res.json({
       success: false,
@@ -134,7 +121,7 @@ async function checkAndSaveData(req, res) {
   });
 
   // Delete gpx & photo files from server
-  await deleteFiles([...gpxFiles, ...photoFiles]);
+  await deleteFilesFromServer([...gpxFiles, ...photoFiles], next);
 
   // Send email
   await mailer.notify({

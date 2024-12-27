@@ -61,15 +61,15 @@ async function submitForm(event) {
     } else {
       const {
         issues: {
-          genericIssues = [],
-          gpxIssues = [],
-          photoIssues = [],
+          generic = [],
+          gpxFiles = [],
+          photoFiles = [],
         },
       } = data;
 
-      const genericIssuesString = genericIssues?.join('\n');
-      const gpxIssuesString = gpxIssues?.join('\n');
-      const photoIssuesString = photoIssues?.join('\n');
+      const genericIssuesString = generic?.join('\n');
+      const gpxIssuesString = gpxFiles?.join('\n');
+      const photoIssuesString = photoFiles?.join('\n');
 
       genericIssuesEl.innerText = genericIssuesString,
       gpxIssuesEl.innerText = gpxIssuesString;

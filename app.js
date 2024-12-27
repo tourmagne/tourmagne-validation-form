@@ -37,7 +37,7 @@ app.use((err, req, res, next) => {
       sucess: false,
       data: {
         issues: {
-          genericIssues: [err.message],
+          generic: [err.message],
         },
       },
     });
