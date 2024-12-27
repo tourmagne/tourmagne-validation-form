@@ -9,6 +9,7 @@ const path = require('path');
 const checkAndSaveData = require('./controllers/checkAndSaveData');
 const displayForm = require('./controllers/displayForm');
 const uploadFiles = require('./controllers/uploadFiles');
+const deleteFilesFromServer = require('./controllers/utils/deleteFilesFromServer');
 
 const app = express();
 
@@ -42,8 +43,13 @@ app.post('/',
   asyncHandler(checkAndSaveData),
 );
 
-app.use((err, req, res, next) => {
+app.use(async (err, req, res, next) => {
   if (req.xhr) {
+    await deleteFilesFromServer([
+      ...(req.files.gpxFiles || []),
+      ...(req.files.photoFiles || []),
+    ], next);
+
     res.status(500).json({
       sucess: false,
       data: {
@@ -56,7 +62,7 @@ app.use((err, req, res, next) => {
     return;
   }
 
-  // Default error handeler
+  // Default error handler
   next(err);
 });
 

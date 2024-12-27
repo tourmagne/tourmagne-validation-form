@@ -51,7 +51,7 @@ function uploadFiles(req, res, next) {
       cb(null, path.join(__dirname, '../uploads'));
     },
     filename: function (req, file, cb) {
-      cb(null, `${Date.now()}-${file.originalname}`);
+      cb(null, `${new Date().toISOString()} - ${file.originalname}`);
     },
   });
 
@@ -63,8 +63,8 @@ function uploadFiles(req, res, next) {
     },
     storage,
   }).fields([
-    { name: 'photoFiles' },
     { name: 'gpxFiles' },
+    { name: 'photoFiles' },
   ]);
 
   upload(req, res, async function (err) {
@@ -81,6 +81,7 @@ function uploadFiles(req, res, next) {
       issues.photoFiles.push(`Le nombre de photos dépasse le maximum (${MAX_PHOTO_NB} maximum)`);
     }
 
+    // Handled errors
     if (err && err instanceof multer.MulterError && err.code === LIMIT_FILE_SIZE) {
       if (err.field === 'gpxFiles') {
         issues.gpxFiles.push(`Certains fichiers GPX sont trop volumineux (max: ${MAX_FILE_SIZE / (1024 * 1024)} Mo)`);
@@ -107,6 +108,7 @@ function uploadFiles(req, res, next) {
       return;
     }
 
+    // Other errors (not handled here)
     if (err) {
       next(err);
     } else {

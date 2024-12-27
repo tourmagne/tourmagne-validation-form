@@ -75,7 +75,7 @@ async function checkAndSaveData(req, res, next) {
     return;
   }
 
-  // Else, upload files on Google Drive
+  // Else, save files on Google Drive
   const submissionFolderName = `Soumission du ${new Date().toISOString()}`;
 
   const auth = await gdrive.getAuthorization();
@@ -86,28 +86,32 @@ async function checkAndSaveData(req, res, next) {
     parent: challengerFolderId,
   });
 
-  // Upload text file
-  const textPath = path.join(__dirname, '../uploads', `${submissionFolderName}-text`);
+  // Upload text on server and then save text file on Google Drive
+  const textPath = path.join(__dirname, '../uploads', `${new Date().toISOString()} - text`);
 
   await fs.writeFile(textPath, text);
 
-  await gdrive.saveFile({
-    auth,
-    fileName: 'Challenger text.txt',
-    filePath: textPath,
-    folderId: submissionFolderId,
-  });
+  try {
+    await gdrive.saveFile({
+      auth,
+      fileName: 'Challenger text.txt',
+      filePath: textPath,
+      folderId: submissionFolderId,
+    });
+  } catch (err) {
+    next(err);
+  } finally {
+    await fs.unlink(textPath);
+  }
 
-  await fs.unlink(textPath);
-
-  // Upload photos
+  // Save photos on Google Drive
   await saveFiles({
     auth,
     files: photoFiles,
     folderId: submissionFolderId,
   });
 
-  // Upload GPX files
+  // Save GPX files on Google Drive
   const { id: gpxFolderId } = await gdrive.createFolder({
     auth,
     name: 'challengerGpx',

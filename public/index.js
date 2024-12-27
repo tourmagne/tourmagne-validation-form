@@ -16,6 +16,7 @@ async function submitForm(event) {
   const submitButtonEl = document.getElementById('submitButton');
 
   // Update the display when the submit button is clicked
+  genericIssuesEl.innerText = '';
   gpxIssuesEl.innerText = '';
   gpxFilesInputEl.disabled = true;
   messageEl.innerHTML = 'Analyse des fichiers en cours';
