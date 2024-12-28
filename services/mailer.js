@@ -7,6 +7,7 @@ const nodemailer = require('nodemailer');
 const {
   GMAIL_APP_EMAIL,
   GMAIL_APP_PASSWORD,
+  MAIL_TO,
 } = process.env;
 
 const transporter = nodemailer.createTransport({
@@ -40,7 +41,7 @@ async function notify(params) {
 
   const info = await transporter.sendMail({
     from: '"Tourmagne Administration" <cedriclouyottest@gmail.com>',
-    to: 'cedric.louyot@gmail.com',
+    to: MAIL_TO,
     subject: 'A challenger submitted its files',
     html,
     text,
