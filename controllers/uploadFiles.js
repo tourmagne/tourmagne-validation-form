@@ -63,6 +63,8 @@ function uploadFiles(req, res, next) {
   ]);
 
   upload(req, res, async function (err) {
+    console.log('upload controller: started');
+
     if (req.user.hasTooManyGpxFiles) {
       req.user.issues.gpxFiles.push(`Le nombre de fichiers GPX dépasse le maximum (${MAX_GPX_NB} maximum)`);
     }
@@ -83,6 +85,7 @@ function uploadFiles(req, res, next) {
     }
 
     if (req.user.issues.gpxFiles.length || req.user.issues.photoFiles.length) {
+      console.log('upload controller: returning an handled error');
       res.json({
         success: false,
         data: {
@@ -95,9 +98,11 @@ function uploadFiles(req, res, next) {
 
     // Other errors (not handled here)
     if (err) {
+      console.log('upload controller: returning an unhandled error');
       return next(err);
     }
 
+    console.log('upload controller: going to the next controller');
     next();
   });
 }

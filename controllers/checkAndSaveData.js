@@ -30,7 +30,10 @@ async function saveFiles({
   await Promise.all(promises);
 }
 
+// eslint-disable-next-line no-unused-vars
 async function checkAndSaveData(req, res, next) {
+  console.log('checkAndSaveData controller: started');
+
   const {
     body: {
       challengerFolderId,
@@ -43,17 +46,16 @@ async function checkAndSaveData(req, res, next) {
   } = req;
 
   // Check GPX files validity
-  const fileContentPromises = gpxFiles.map(async (file) => {
-    const fileContent = file.buffer.toString();
+  const fileContentArray = gpxFiles.map((file) => file.buffer.toString());
 
-    return fileContent;
-  });
-
-  const fileContentArray = await Promise.all(fileContentPromises);
+  console.log('checkAndSaveData controller: before checkGpx service launch');
   const gpxContentIssue = await checkGpx(fileContentArray);
+
+  console.log('checkAndSaveData controller: after checkGpx service finished');
 
   // Early return if GPX files are not valid
   if (gpxContentIssue) {
+    console.log('checkAndSaveData controller: returning an handled error');
     req.user.issues.gpxFiles.push(gpxContentIssue);
 
     res.json({
@@ -69,8 +71,10 @@ async function checkAndSaveData(req, res, next) {
   // Else, save files on Google Drive
   const submissionFolderName = `Soumission du ${new Date().toISOString()}`;
 
+  console.log('checkAndSaveData controller: get authorization from Google Drive');
   const auth = await gdrive.getAuthorization();
 
+  console.log('checkAndSaveData controller: create submission folder in Google Drive');
   const { id: submissionFolderId } = await gdrive.createFolder({
     auth,
     name: submissionFolderName,
@@ -78,6 +82,7 @@ async function checkAndSaveData(req, res, next) {
   });
 
   // Save text file on Google Drive
+  console.log('checkAndSaveData controller: save text file in Google Drive');
   await gdrive.saveFile({
     auth,
     buffer: text,
@@ -87,6 +92,7 @@ async function checkAndSaveData(req, res, next) {
   });
 
   // Save photos on Google Drive
+  console.log('checkAndSaveData controller: save photo files in Google Drive');
   await saveFiles({
     auth,
     files: photoFiles,
@@ -95,12 +101,14 @@ async function checkAndSaveData(req, res, next) {
   });
 
   // Save GPX files on Google Drive
+  console.log('checkAndSaveData controller: create gpx folder in Google Drive');
   const { id: gpxFolderId } = await gdrive.createFolder({
     auth,
     name: 'challengerGpx',
     parent: submissionFolderId,
   });
 
+  console.log('checkAndSaveData controller: save gpx files in Google Drive');
   await saveFiles({
     auth,
     files: gpxFiles,
@@ -109,6 +117,7 @@ async function checkAndSaveData(req, res, next) {
   });
 
   // Send email
+  console.log('checkAndSaveData controller: notify by email');
   await mailer.notify({
     challengerFolderId,
     submissionFolderId,
