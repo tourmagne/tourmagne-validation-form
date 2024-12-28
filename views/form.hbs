@@ -1,22 +1,27 @@
 <main class='container'>
-  <h1 class='text-center'>Soumission des données du challenger</h1>
+  <h1 class='text-center my-3'>Deviens lauréat du challenge du Tourmagne !</h1>
   <section>
-    <h2 class='text-center'>Données à saisir</h2>
+    <h2 class='text-center'>Formulaire de validation du challenge du Tourmagne</h2>
     <form id='form' method='POST' enctype='multipart/form-data'>
       <section class='light'>
         <div class='form-group'>
-          <label for='text'>Texte</label>
-          <textarea id='textInput' name='text' rows='10' class='form-control' required>Raconte nous ton challenge du Tourmagne ici...</textarea>
+          <label for='text'>Raconte nous ton souvenir le plus marquant</label>
+          <textarea id='textInput' name='text' rows='10' class='form-control' required></textarea>
+          <small>Champ obligatoire</small>
         </div>
         <div class='form-group'>
-          <label for='photoFilesInput'>Photos (max {{maxPhotoNb}} photos, {{maxFileSizeMo}} Mo chacune)</label>
-          <input id='photoFilesInput' name='photoFiles' type='file' class='form-control' accept='image/*' multiple />
-          <p id='photoIssues' class='text-danger'></p>
-        </div>
-        <div class='form-group'>
-          <label for='gpxFilesInput'>Traces GPX (max {{maxGpxNb}} fichiers GPX, {{maxFileSizeMo}} Mo chacun) </label>
+          <label for='gpxFilesInput'>Envoie-nous tes traces GPX pour que nous puissions valider ton challenge</label>
           <input id='gpxFilesInput' name='gpxFiles' type='file' class='form-control' accept='.gpx' multiple required />
+          <small>Champ obligatoire - Maximum {{maxGpxNb}} fichiers GPX de {{maxFileSizeMo}} Mo chacun<br>
+          Les fichiers GPX doivent impérativement contenir des données temporelles (heure de passage à chaque point GPS)<br>
+          Les fichiers GPX ne doivent pas se chevaucher temporellement</small>
           <p id='gpxIssues' class='text-danger'></p>
+        </div>
+        <div class='form-group'>
+          <label for='photoFilesInput'>Envoie-nous quelques photos de ton aventure pour le <a href='https://tourmagne.bike/tableau-dhonneur-et-recits/' target='_blanck'>tableau d'honneur</a></label>
+          <input id='photoFilesInput' name='photoFiles' type='file' class='form-control' accept='image/*' multiple />
+          <small>Champ faculatif - Maximum {{maxPhotoNb}} photos de {{maxFileSizeMo}} Mo chacune</small>
+          <p id='photoIssues' class='text-danger'></p>
         </div>
         <input id='challengerFolderId' name='challengerFolderId' type='hidden' value='{{challengerFolderId}}'>
       </section>
