@@ -45,26 +45,16 @@ app.post('/',
 );
 
 app.use(async (err, req, res, next) => {
-  if (req.xhr) {
-    await deleteFilesFromServer([
-      ...(req.files.gpxFiles || []),
-      ...(req.files.photoFiles || []),
-    ], next);
+  await deleteFilesFromServer(next);
 
-    res.status(500).json({
-      sucess: false,
-      data: {
-        issues: {
-          generic: [err.message],
-        },
+  res.status(500).json({
+    sucess: false,
+    data: {
+      issues: {
+        generic: [err.message],
       },
-    });
-
-    return;
-  }
-
-  // Default error handler
-  next(err);
+    },
+  });
 });
 
 module.exports = app;

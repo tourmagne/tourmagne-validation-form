@@ -61,7 +61,7 @@ async function checkAndSaveData(req, res, next) {
 
   // Early return if GPX files are not valid
   if (gpxContentIssue) {
-    await deleteFilesFromServer([...gpxFiles, ...photoFiles], next);
+    await deleteFilesFromServer(next);
 
     issues.gpxFiles.push(gpxContentIssue);
 
@@ -125,7 +125,7 @@ async function checkAndSaveData(req, res, next) {
   });
 
   // Delete gpx & photo files from server
-  await deleteFilesFromServer([...gpxFiles, ...photoFiles], next);
+  await deleteFilesFromServer(next);
 
   // Send email
   await mailer.notify({

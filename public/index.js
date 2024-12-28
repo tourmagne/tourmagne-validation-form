@@ -37,10 +37,6 @@ async function submitForm(event) {
     const response = await fetch('/', {
       method: 'POST',
       body: formData,
-      // header so that req.xhr is true => error handled differently
-      headers: {
-        'X-Requested-With': 'XMLHttpRequest',
-      },
     });
 
     const json = await response.json();

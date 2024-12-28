@@ -93,10 +93,7 @@ function uploadFiles(req, res, next) {
     }
 
     if (issues.gpxFiles.length || issues.photoFiles.length) {
-      await deleteFilesFromServer([
-        ...(req.files.gpxFiles || []),
-        ...(req.files.photoFiles || []),
-      ], next);
+      await deleteFilesFromServer(next);
 
       res.json({
         success: false,

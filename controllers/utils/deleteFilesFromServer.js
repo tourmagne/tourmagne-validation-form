@@ -1,16 +1,18 @@
 'use strict';
 
 const fs = require('fs').promises;
+const path = require('path');
 
-async function deleteFilesFromServer(files, next) {
+const folderPath = path.join(__dirname, '../../uploads');
+
+async function deleteFilesFromServer(next) {
   try {
-    await Promise.allSettled(
-      files.map(async (file) => {
-        const { path } = file;
-        await fs.unlink(path);
-      }),
+    const files = await fs.readdir(folderPath);
+    const deletePromises = files.map((file) =>
+      fs.unlink(path.join(folderPath, file)),
     );
-    console.log('All files deleted successfully!');
+    await Promise.all(deletePromises);
+    console.log(`All files deleted from ${folderPath}`);
   } catch (err) {
     next(err);
   }
