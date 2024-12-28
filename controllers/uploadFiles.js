@@ -44,6 +44,11 @@ function uploadFiles(req, res, next) {
     fieldCounts: {},
     hasTooManyGpxFiles: false,
     hasTooManyPhotoFiles: false,
+    issues: {
+      generic: [],
+      gpxFiles: [],
+      photoFiles: [],
+    },
   };
 
   const storage = multer.diskStorage({
@@ -68,37 +73,32 @@ function uploadFiles(req, res, next) {
   ]);
 
   upload(req, res, async function (err) {
-    const issues = {
-      gpxFiles: [],
-      photoFiles: [],
-    };
-
     if (req.user.hasTooManyGpxFiles) {
-      issues.gpxFiles.push(`Le nombre de fichiers GPX dépasse le maximum (${MAX_GPX_NB} maximum)`);
+      req.user.issues.gpxFiles.push(`Le nombre de fichiers GPX dépasse le maximum (${MAX_GPX_NB} maximum)`);
     }
 
     if (req.user.hasTooManyPhotoFiles) {
-      issues.photoFiles.push(`Le nombre de photos dépasse le maximum (${MAX_PHOTO_NB} maximum)`);
+      req.user.issues.photoFiles.push(`Le nombre de photos dépasse le maximum (${MAX_PHOTO_NB} maximum)`);
     }
 
     // Handled errors
     if (err && err instanceof multer.MulterError && err.code === LIMIT_FILE_SIZE) {
       if (err.field === 'gpxFiles') {
-        issues.gpxFiles.push(`Certains fichiers GPX sont trop volumineux (max: ${MAX_FILE_SIZE / (1024 * 1024)} Mo)`);
+        req.user.issues.gpxFiles.push(`Certains fichiers GPX sont trop volumineux (max: ${MAX_FILE_SIZE / (1024 * 1024)} Mo)`);
       }
 
       if (err.field === 'photoFiles') {
-        issues.photoFiles.push(`Certaines photos sont trop volumineuses (max: ${MAX_FILE_SIZE / (1024 * 1024)} Mo)`);
+        req.user.issues.photoFiles.push(`Certaines photos sont trop volumineuses (max: ${MAX_FILE_SIZE / (1024 * 1024)} Mo)`);
       }
     }
 
-    if (issues.gpxFiles.length || issues.photoFiles.length) {
+    if (req.user.issues.gpxFiles.length || req.user.issues.photoFiles.length) {
       await deleteFilesFromServer(next);
 
       res.json({
         success: false,
         data: {
-          issues,
+          issues: req.user.issues,
         },
       });
 

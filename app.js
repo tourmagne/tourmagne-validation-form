@@ -47,12 +47,12 @@ app.post('/',
 app.use(async (err, req, res, next) => {
   await deleteFilesFromServer(next);
 
+  req.user.issues.generic.push(err.message);
+
   res.status(500).json({
     sucess: false,
     data: {
-      issues: {
-        generic: [err.message],
-      },
+      issues: req.user.issues,
     },
   });
 });

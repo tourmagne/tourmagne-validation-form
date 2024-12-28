@@ -44,11 +44,6 @@ async function checkAndSaveData(req, res, next) {
     },
   } = req;
 
-  const issues = {
-    gpxFiles: [],
-    photoFiles: [],
-  };
-
   // Check GPX files validity
   const fileContentPromises = gpxFiles.map(async (file) => {
     const fileContent = await fs.readFile(file.path, 'utf-8');
@@ -63,12 +58,12 @@ async function checkAndSaveData(req, res, next) {
   if (gpxContentIssue) {
     await deleteFilesFromServer(next);
 
-    issues.gpxFiles.push(gpxContentIssue);
+    req.user.issues.gpxFiles.push(gpxContentIssue);
 
     res.json({
       success: false,
       data: {
-        issues,
+        issues: req.user.issues,
       },
     });
 
