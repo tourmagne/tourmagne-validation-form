@@ -47,6 +47,7 @@ app.post('/',
 
 // eslint-disable-next-line no-unused-vars
 app.use(async (err, req, res, next) => {
+  console.log(err);
   req.user.issues.generic.push(err.message);
 
   res.status(500).json({

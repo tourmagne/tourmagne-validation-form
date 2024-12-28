@@ -26,13 +26,15 @@ async function submitForm(event) {
   submitButtonEl.disabled = true;
 
   // Build a FormData object to POST the form later
+  const challengerFolderId = document.getElementById('challengerFolderId').value;
   const formData = new FormData();
-  formData.append('challengerFolderId', document.getElementById('challengerFolderId').value);
+  formData.append('challengerFolderId', challengerFolderId);
   formData.append('text', document.getElementById('textInput').value);
   Array.from(gpxFilesInputEl.files).forEach((file) => formData.append('gpxFiles', file));
   Array.from(photoFilesInputEl.files).forEach((file) => formData.append('photoFiles', file));
 
   try {
+    console.log(`Request will be sent with Google Drive folder id: ${challengerFolderId}`);
     // POST the form data to check and maybe upload data
     const response = await fetch('/', {
       method: 'POST',
