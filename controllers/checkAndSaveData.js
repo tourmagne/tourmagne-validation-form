@@ -86,18 +86,12 @@ async function checkAndSaveData(req, res, next) {
 
   await fs.writeFile(textPath, text);
 
-  try {
-    await gdrive.saveFile({
-      auth,
-      fileName: 'Challenger text.txt',
-      filePath: textPath,
-      folderId: submissionFolderId,
-    });
-  } catch (err) {
-    return next(err);
-  } finally {
-    await fs.unlink(textPath);
-  }
+  await gdrive.saveFile({
+    auth,
+    fileName: 'Challenger text.txt',
+    filePath: textPath,
+    folderId: submissionFolderId,
+  });
 
   // Save photos on Google Drive
   await saveFiles({

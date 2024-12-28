@@ -11,7 +11,9 @@ async function deleteFilesFromServer(next) {
     const deletePromises = files.map((file) =>
       fs.unlink(path.join(folderPath, file)),
     );
+
     await Promise.all(deletePromises);
+
     console.log(`All files deleted from ${folderPath}`);
   } catch (err) {
     next(err);
