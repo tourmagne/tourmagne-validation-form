@@ -8,7 +8,11 @@ const folderPath = path.join(__dirname, '../../uploads');
 async function deleteFilesFromServer(next) {
   try {
     const files = await fs.readdir(folderPath);
-    const deletePromises = files.map((file) =>
+
+    // Do not delete .gitkeep so that uploads folder stays synced on Github
+    const filesToDelete = files.filter((file) => file !== '.gitkeep');
+
+    const deletePromises = filesToDelete.map((file) =>
       fs.unlink(path.join(folderPath, file)),
     );
 
