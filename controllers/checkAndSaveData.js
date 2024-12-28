@@ -1,14 +1,10 @@
 'use strict';
 
-const fs = require('fs').promises;
-const path = require('path');
-
 const {
   checkGpx,
   gdrive,
   mailer,
 } = require('../services');
-const deleteFilesFromServer = require('./utils/deleteFilesFromServer');
 
 async function saveFiles({
   auth,
@@ -17,15 +13,17 @@ async function saveFiles({
 }) {
   const promises = files.map((file) => {
     const {
+      buffer,
       originalname,
-      path,
+      mimeType,
     } = file;
 
     return gdrive.saveFile({
       auth,
+      buffer,
       fileName: originalname,
-      filePath: path,
       folderId,
+      mimeType,
     });
   });
 
@@ -46,7 +44,7 @@ async function checkAndSaveData(req, res, next) {
 
   // Check GPX files validity
   const fileContentPromises = gpxFiles.map(async (file) => {
-    const fileContent = await fs.readFile(file.path, 'utf-8');
+    const fileContent = file.buffer.toString();
 
     return fileContent;
   });
@@ -56,8 +54,6 @@ async function checkAndSaveData(req, res, next) {
 
   // Early return if GPX files are not valid
   if (gpxContentIssue) {
-    await deleteFilesFromServer(next);
-
     req.user.issues.gpxFiles.push(gpxContentIssue);
 
     res.json({
@@ -81,16 +77,13 @@ async function checkAndSaveData(req, res, next) {
     parent: challengerFolderId,
   });
 
-  // Upload text on server and then save text file on Google Drive
-  const textPath = path.join(__dirname, '../uploads', `${new Date().toISOString()} - text`);
-
-  await fs.writeFile(textPath, text);
-
+  // Save text file on Google Drive
   await gdrive.saveFile({
     auth,
+    buffer: text,
     fileName: 'Challenger text.txt',
-    filePath: textPath,
     folderId: submissionFolderId,
+    mimeType: 'text/plain',
   });
 
   // Save photos on Google Drive
@@ -98,6 +91,7 @@ async function checkAndSaveData(req, res, next) {
     auth,
     files: photoFiles,
     folderId: submissionFolderId,
+    mimeType: 'image/jpg',
   });
 
   // Save GPX files on Google Drive
@@ -111,10 +105,8 @@ async function checkAndSaveData(req, res, next) {
     auth,
     files: gpxFiles,
     folderId: gpxFolderId,
+    mimeType: 'application/gpx+xml',
   });
-
-  // Delete gpx & photo files from server
-  await deleteFilesFromServer(next);
 
   // Send email
   await mailer.notify({

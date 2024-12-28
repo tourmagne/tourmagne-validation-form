@@ -1,7 +1,7 @@
 'use strict';
 
 require('dotenv').config();
-const fs = require('fs');
+const { Readable } = require('node:stream');
 const { google } = require('googleapis');
 
 const {
@@ -63,32 +63,27 @@ async function listFiles({ auth }) {
 
   return files;
 }
-
 /**
  * Create a new file on google drive.
  * @param {object} params -
  * @param {OAuth2Client} param.auth An authorized OAuth2 client.
- * @param {string} params.filePath Absolute path of the file to upload
+ * @param {string} params.textString String to write in Google Drive
  * @param {string} params.folderId Id of the folder to put the file in
  */
-async function saveFile({ auth, fileName, filePath, folderId }) {
+async function saveFile({ auth, buffer, fileName, folderId, mimeType }) {
   const drive = google.drive({ version: 'v3', auth });
 
-  const fileSize = fs.statSync(filePath).size;
-
-  console.log({ fileSize });
-
-  const file = await drive.files.create({
+  await drive.files.create({
     media: {
-      body: fs.createReadStream(filePath),
+      body: Readable.from(buffer),
+      mimeType,
     },
     requestBody: {
-      parents: [folderId],
+      mimeType,
       name: fileName,
+      parents: [folderId],
     },
   });
-
-  console.log(file.data);
 }
 
 /**
@@ -97,14 +92,13 @@ async function saveFile({ auth, fileName, filePath, folderId }) {
  * @param {OAuth2Client} params.auth An authorized OAuth2 client.
  * @param {string} params.fileId id of the file to delete
  */
-async function deleteFile({ auth, fileId }) {
+async function deleteFile({ auth, fileId, fileName }) {
   const drive = google.drive({ version: 'v3', auth });
   const res = await drive.files.delete({
     fileId,
   });
 
-  console.log(res.status);
-  console.log(`File ${fileId} deleted`);
+  console.log(`File ${fileId} of name ${fileName} deleted: status ${res.status}`);
 }
 
 /**
@@ -117,6 +111,7 @@ async function deleteAllFiles({ auth }) {
   const res = await drive.files.list({
     fields: 'nextPageToken, files(id, name)',
   });
+
   const files = res.data.files;
   if (files.length === 0) {
     console.log('No files found.');
@@ -127,8 +122,10 @@ async function deleteAllFiles({ auth }) {
   files.map((file) => {
     console.log(`${file.name} (${file.id})`);
   });
+  console.log('\n');
 
-  const promises = files.map((file) => deleteFile({ auth, fileId: file.id }));
+  const promises = files.map((file) => deleteFile({ auth, fileId: file.id, fileName: file.name }));
+  console.log('\n');
 
   await Promise.all(promises);
 

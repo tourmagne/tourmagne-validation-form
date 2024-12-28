@@ -47,7 +47,7 @@ async function notify(params) {
     text,
   });
 
-  console.log('Message sent: %s', info.messageId);
+  console.log('Email sent: %s', info.messageId);
 }
 
 module.exports = {

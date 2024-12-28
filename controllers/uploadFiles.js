@@ -1,14 +1,12 @@
 'use strict';
 
 const multer = require('multer');
-const path = require('path');
 
 const {
   MAX_FILE_SIZE,
   MAX_GPX_NB,
   MAX_PHOTO_NB,
 } = require('../constants');
-const deleteFilesFromServer = require('./utils/deleteFilesFromServer');
 
 const LIMIT_FILE_SIZE = 'LIMIT_FILE_SIZE';
 
@@ -51,17 +49,9 @@ function uploadFiles(req, res, next) {
     },
   };
 
-  const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-      cb(null, path.join(__dirname, '../uploads'));
-    },
-    filename: function (req, file, cb) {
-      cb(null, `${new Date().toISOString()} - ${file.originalname}`);
-    },
-  });
+  const storage = multer.memoryStorage();
 
   const upload = multer({
-    dest: path.join(__dirname, '../uploads'),
     fileFilter,
     limits: {
       fileSize: Math.max(MAX_FILE_SIZE),
@@ -93,8 +83,6 @@ function uploadFiles(req, res, next) {
     }
 
     if (req.user.issues.gpxFiles.length || req.user.issues.photoFiles.length) {
-      await deleteFilesFromServer(next);
-
       res.json({
         success: false,
         data: {

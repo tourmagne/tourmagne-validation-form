@@ -10,7 +10,6 @@ const displayForm = require('./controllers/displayForm');
 const uploadFiles = require('./controllers/uploadFiles');
 
 const asyncHandler = require('./controllers/utils/ayncHandler');
-const deleteFilesFromServer = require('./controllers/utils/deleteFilesFromServer');
 
 const app = express();
 
@@ -44,9 +43,10 @@ app.post('/',
   asyncHandler(checkAndSaveData),
 );
 
-app.use(async (err, req, res, next) => {
-  await deleteFilesFromServer(next);
+// Error handler
 
+// eslint-disable-next-line no-unused-vars
+app.use(async (err, req, res, next) => {
   req.user.issues.generic.push(err.message);
 
   res.status(500).json({

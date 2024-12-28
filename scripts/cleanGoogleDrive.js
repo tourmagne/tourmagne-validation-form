@@ -6,5 +6,5 @@ async function main() {
 }
 
 main()
-  .then(() => console.log('All files deleted'))
+  .then(() => console.log('Script terminated'))
   .catch((err) => console.log(err));
