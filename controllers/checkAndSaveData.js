@@ -99,7 +99,7 @@ async function checkAndSaveData(req, res, next) {
       folderId: submissionFolderId,
     });
   } catch (err) {
-    next(err);
+    return next(err);
   } finally {
     await fs.unlink(textPath);
   }

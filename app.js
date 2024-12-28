@@ -1,6 +1,5 @@
 'use strict';
 
-const asyncHandler = require('./utils/ayncHandler');
 const express = require('express');
 const exphbs = require('express-handlebars');
 const helmet = require('helmet');
@@ -9,6 +8,8 @@ const path = require('path');
 const checkAndSaveData = require('./controllers/checkAndSaveData');
 const displayForm = require('./controllers/displayForm');
 const uploadFiles = require('./controllers/uploadFiles');
+
+const asyncHandler = require('./controllers/utils/ayncHandler');
 const deleteFilesFromServer = require('./controllers/utils/deleteFilesFromServer');
 
 const app = express();

@@ -110,10 +110,10 @@ function uploadFiles(req, res, next) {
 
     // Other errors (not handled here)
     if (err) {
-      next(err);
-    } else {
-      next();
+      return next(err);
     }
+
+    next();
   });
 }
 
