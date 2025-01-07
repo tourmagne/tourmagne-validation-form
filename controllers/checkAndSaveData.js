@@ -6,6 +6,11 @@ const {
   mailer,
 } = require('../services');
 
+// Function to fix encoding issue with multer (see https://github.com/expressjs/multer/issues/1104)
+function filenameAsUTF8(originalname) {
+  return Buffer.from(originalname, 'latin1').toString('utf8');
+}
+
 async function saveFiles({
   auth,
   files,
@@ -21,7 +26,7 @@ async function saveFiles({
     return gdrive.saveFile({
       auth,
       buffer,
-      fileName: originalname,
+      fileName: filenameAsUTF8(originalname),
       folderId,
       mimeType,
     });
@@ -123,8 +128,8 @@ async function checkAndSaveData(req, res, next) {
     submissionFolderId,
   });
 
-  const gpxFilelist = gpxFiles.map((file) => file.originalname);
-  const photoFilelist = photoFiles.map((file) => file.originalname);
+  const gpxFilelist = gpxFiles.map((file) => filenameAsUTF8(file.originalname));
+  const photoFilelist = photoFiles.map((file) => filenameAsUTF8(file.originalname));
 
   res.json({
     success: true,
