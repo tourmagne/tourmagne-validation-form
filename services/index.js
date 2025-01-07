@@ -1,12 +1,12 @@
 'use strict';
 
 const parseGpx = require('./parseGpx');
-const compareTrack = require('./compareTrack');
+const compareTracks = require('./compareTracks');
 const gdrive = require('./gdrive');
 const mailer = require('./mailer');
 
 module.exports = {
-  compareTrack,
+  compareTracks,
   parseGpx,
   gdrive,
   mailer,

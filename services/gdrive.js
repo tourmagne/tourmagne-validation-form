@@ -5,10 +5,15 @@ const { Readable } = require('node:stream');
 const { google } = require('googleapis');
 
 const {
+  UnavailableFileError,
+} = require('../utils/errors');
+
+const {
   GDRIVE_CLIENT_EMAIL,
   GDRIVE_PRIVATE_KEY,
 } = process.env;
-const SCOPES = ['https://www.googleapis.com/auth/drive.file'];
+
+const SCOPES = ['https://www.googleapis.com/auth/drive'];
 
 /**
  * Get authorization with service account
@@ -63,6 +68,43 @@ async function listFiles({ auth }) {
 
   return files;
 }
+
+// Read specific file
+async function readFile({ auth, filename, folderId }) {
+  try {
+    const drive = google.drive({ version: 'v3', auth });
+
+    // Search for the file in the folder
+    const fileList = await drive.files.list({
+      q: `'${folderId}' in parents and name = '${filename}' and trashed = false`,
+      fields: 'files(id, name)',
+    });
+
+    const files = fileList?.data?.files;
+
+    if (!files.length) {
+      throw new UnavailableFileError(`File '${filename}' not found in folder '${folderId}'.`);
+    }
+
+    const fileId = files[0].id;
+    console.log(`Found file: ${files[0].name} (ID: ${fileId})`);
+
+    const file = await drive.files.get(
+      { fileId, alt: 'media' },
+      { responseType: 'text' },
+    );
+
+    return file.data;
+  } catch (error) {
+    if (error instanceof UnavailableFileError) {
+      // TODO : write file to Drive explainint the error
+      console.log(error.message);
+    } else {
+      throw error;
+    }
+  }
+}
+
 /**
  * Create a new file on google drive.
  * @param {object} params -
@@ -133,9 +175,10 @@ async function deleteAllFiles({ auth }) {
 }
 
 module.exports = {
-  getAuthorization,
-  deleteAllFiles,
   createFolder,
+  deleteAllFiles,
+  getAuthorization,
   listFiles,
+  readFile,
   saveFile,
 };
