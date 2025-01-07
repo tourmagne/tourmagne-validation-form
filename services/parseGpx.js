@@ -1,13 +1,9 @@
 const { XMLParser } = require('fast-xml-parser');
 
-const ParsingError = require('../utils/ParsingError');
+const { ParsingError } = require('../utils/errors');
 
 // Sort files chronologically
 const sortFiles = (trkptsArr) => {
-  if (trkptsArr.some((trkptsFile) => typeof trkptsFile[0][0].time === 'undefined')) {
-    throw new ParsingError('Tes fichiers GPX ne sont pas conformes car au moins l\'un d\'eux ne contient pas de données temporelles (heure de passage à chaque point GPS)');
-  }
-
   trkptsArr.sort((a, b) => new Date(a[0][0].time.valueOf()) - new Date(b[0][0].time.valueOf()));
 
   // Check that last point of each file is before 1st point of the next file
@@ -22,7 +18,7 @@ const sortFiles = (trkptsArr) => {
 
 // Parse gpx string
 // -> [{lat, lon, time}]
-const parseGpx = (strs) => {
+const parseGpx = (strs, { timestampsRequired = false }) => {
   const parser = new XMLParser({
     ignoreAttributes: false,
     parseAttributeValue: true,
@@ -50,6 +46,13 @@ const parseGpx = (strs) => {
     }
     return [trksegs?.trkpt];
   });
+
+  // For challenger tracks, check if they have timestamps
+  if (timestampsRequired) {
+    if (trkptsArr.some((trkptsFile) => typeof trkptsFile[0][0].time === 'undefined')) {
+      throw new ParsingError('Tes fichiers GPX ne sont pas conformes car au moins l\'un d\'eux ne contient pas de données temporelles (heure de passage à chaque point GPS)');
+    }
+  }
 
   // If multiple gpx files strings where inputed, sort them chronollogically
   if (trkptsArr.length > 1) {
