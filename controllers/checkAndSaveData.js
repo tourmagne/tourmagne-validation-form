@@ -1,7 +1,7 @@
 'use strict';
 
 const {
-  checkGpx,
+  parseGpx,
   gdrive,
   mailer,
 } = require('../services');
@@ -55,12 +55,12 @@ async function checkAndSaveData(req, res, next) {
   // Check GPX files validity
   const fileContentArray = gpxFiles.map((file) => file.buffer.toString());
 
-  console.log('checkAndSaveData controller: before checkGpx service launch');
+  console.log('checkAndSaveData controller: before parseGpx service launch');
 
   let parsedGpx;
   let gpxContentIssue;
   try {
-    parsedGpx = await checkGpx(fileContentArray);
+    parsedGpx = await parseGpx(fileContentArray);
   } catch (error) {
     if (error instanceof ParsingError) {
       gpxContentIssue = error.message;
@@ -69,7 +69,9 @@ async function checkAndSaveData(req, res, next) {
     }
   }
 
-  console.log('checkAndSaveData controller: after checkGpx service finished');
+  console.log(parsedGpx);
+
+  console.log('checkAndSaveData controller: after parseGpx service finished');
 
   // Early return if GPX files are not valid
   if (gpxContentIssue) {
