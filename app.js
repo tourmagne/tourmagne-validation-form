@@ -9,7 +9,7 @@ const checkAndSaveData = require('./controllers/checkAndSaveData');
 const displayForm = require('./controllers/displayForm');
 const uploadFiles = require('./controllers/uploadFiles');
 
-const asyncHandler = require('./controllers/utils/ayncHandler');
+const asyncHandler = require('./utils/ayncHandler');
 
 const app = express();
 

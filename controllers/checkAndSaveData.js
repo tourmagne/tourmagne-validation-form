@@ -6,6 +6,8 @@ const {
   mailer,
 } = require('../services');
 
+const ParsingError = require('../utils/ParsingError');
+
 // Function to fix encoding issue with multer (see https://github.com/expressjs/multer/issues/1104)
 function filenameAsUTF8(originalname) {
   return Buffer.from(originalname, 'latin1').toString('utf8');
@@ -54,7 +56,18 @@ async function checkAndSaveData(req, res, next) {
   const fileContentArray = gpxFiles.map((file) => file.buffer.toString());
 
   console.log('checkAndSaveData controller: before checkGpx service launch');
-  const gpxContentIssue = await checkGpx(fileContentArray);
+
+  let parsedGpx;
+  let gpxContentIssue;
+  try {
+    parsedGpx = await checkGpx(fileContentArray);
+  } catch (error) {
+    if (error instanceof ParsingError) {
+      gpxContentIssue = error.message;
+    } else {
+      throw error;
+    }
+  }
 
   console.log('checkAndSaveData controller: after checkGpx service finished');
 

@@ -1,5 +1,7 @@
 const { XMLParser } = require('fast-xml-parser');
 
+const ParsingError = require('../utils/ParsingError');
+
 const checkGpx = async (fileContentArray) => {
   const parser = new XMLParser({
     ignoreAttributes: false,
@@ -30,7 +32,7 @@ const checkGpx = async (fileContentArray) => {
   });
 
   if (trkptsArr.some((trkptsFile) => typeof trkptsFile[0][0].time === 'undefined')) {
-    return 'Tes fichiers GPX ne sont pas conformes car au moins l\'un d\'eux ne contient pas de données temporelles (heure de passage à chaque point GPS)';
+    throw new ParsingError('Tes fichiers GPX ne sont pas conformes car au moins l\'un d\'eux ne contient pas de données temporelles (heure de passage à chaque point GPS)');
   }
 
   trkptsArr.sort((a, b) => new Date(a[0][0].time.valueOf()) - new Date(b[0][0].time.valueOf()));
@@ -40,7 +42,7 @@ const checkGpx = async (fileContentArray) => {
     const endTimeOfCurrentFile = new Date(trkptsArr[fileNb].flat().slice(-1)[0].time.valueOf());
     const startTimeOfNextFile = new Date(trkptsArr[fileNb + 1][0][0].time.valueOf());
     if (endTimeOfCurrentFile > startTimeOfNextFile) {
-      return 'Tes fichiers GPX ne sont pas conformes car au moins 2 d\'entre eux se chevauchent temporellement (ils contiennent des données pour le même horaire)';
+      throw new ParsingError('Tes fichiers GPX ne sont pas conformes car au moins 2 d\'entre eux se chevauchent temporellement (ils contiennent des données pour le même horaire)');
     }
   }
 
