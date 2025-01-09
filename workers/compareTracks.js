@@ -360,9 +360,6 @@ const compareTracks = (workerData) => {
     kpi,
   };
 };
-try {
-  const result = compareTracks(workerData);
-  parentPort.postMessage(result);
-} catch (err) {
-  parentPort.postMessage({ error: err.message });
-}
+
+const result = compareTracks(workerData);
+parentPort.postMessage(result);
