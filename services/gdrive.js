@@ -1,6 +1,5 @@
 'use strict';
 
-require('dotenv').config();
 const { Readable } = require('node:stream');
 const { google } = require('googleapis');
 
