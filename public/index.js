@@ -29,8 +29,12 @@ async function submitForm(event) {
 
   // Build a FormData object to POST the form later
   const challengerFolderId = document.getElementById('challengerFolderId').value;
+  const firstname = document.getElementById('firstname').value;
+  const lastname = document.getElementById('lastname').value;
   const formData = new FormData();
   formData.append('challengerFolderId', challengerFolderId);
+  formData.append('firstname', firstname);
+  formData.append('lastname', lastname);
   formData.append('text', document.getElementById('textInput').value);
   Array.from(gpxFilesInputEl.files).forEach((file) => formData.append('gpxFiles', file));
   Array.from(photoFilesInputEl.files).forEach((file) => formData.append('photoFiles', file));
@@ -56,7 +60,7 @@ async function submitForm(event) {
 
     if (success) {
       document.querySelector('#results').classList.remove('d-none');
-      document.getElementById('successText').innerText = `Texte : ${data.text}`;
+      document.getElementById('successText').innerText = data.text;
       document.getElementById('successPhotos').innerText = `Photos : ${data.photoFilelist.map((el) => `"${el}"`).join(', ')}`;
       document.getElementById('successGpx').innerText = `Fichiers GPX : ${data.gpxFilelist.map((el) => `"${el}"`).join(', ')}`;
     } else {

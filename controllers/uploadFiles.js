@@ -86,7 +86,7 @@ function uploadFiles(req, res, next) {
     }
 
     if (req.user.issues.gpxFiles.length || req.user.issues.photoFiles.length) {
-      console.log('upload controller: returning an handled error');
+      console.log('upload controller ERROR: gpx files or photo files error');
       res.json({
         success: false,
         data: {
@@ -99,11 +99,11 @@ function uploadFiles(req, res, next) {
 
     // Other errors (not handled here)
     if (err) {
-      console.log('upload controller: returning an unhandled error');
+      console.log('upload controller ERROR - Unhandled');
       return next(err);
     }
 
-    console.log('upload controller: going to the next controller');
+    console.log('upload controller: finished');
     next();
   });
 }

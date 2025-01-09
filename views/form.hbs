@@ -1,5 +1,5 @@
 <main class='container'>
-  <h1 class='text-center my-3'>Deviens lauréat du challenge du Tourmagne !</h1>
+  <h1 class='text-center my-3'>{{firstname}} {{lastname}}, deviens lauréat du challenge du Tourmagne !</h1>
   <section>
     <h2 class='text-center'>Formulaire de validation du challenge du Tourmagne</h2>
     <form id='form' method='POST' enctype='multipart/form-data'>
@@ -25,6 +25,8 @@
           <p id='photoIssues' class='text-danger'></p>
         </div>
         <input id='challengerFolderId' name='challengerFolderId' type='hidden' value='{{challengerFolderId}}'>
+        <input id='firstname' name='firstname' type='hidden' value='{{firstname}}'>
+        <input id='lastname' name='lastname' type='hidden' value='{{lastname}}'>
       </section>
       <button id='submitButton' type='submit' class='btn btn-primary'>Soumettre mes données</button>
       <p id='genericIssues' class='text-danger light my-2'></p>
@@ -40,7 +42,7 @@
       <ul class='light'>
         <li id='successGpx'></li>
         <li id='successPhotos'></li>
-        <li id='successText'></li>
+        <li>Texte: <br><i id='successText'></i></li>
       </ul>
     </section>
   </section>

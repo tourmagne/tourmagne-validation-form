@@ -18,6 +18,7 @@ const {
     TRIGGER,
   },
   MAX_TEXT_LENGTH,
+  MIN_TEXT_LENGTH,
 } = require('../constants');
 
 const generateFullGpxStr = require('../utils/generateFullGpxStr');
@@ -138,6 +139,8 @@ async function checkAndSaveData(req, res, next) {
   const {
     body: {
       challengerFolderId,
+      firstname,
+      lastname,
       text,
     },
     files: {
@@ -157,10 +160,27 @@ async function checkAndSaveData(req, res, next) {
     });
   }
 
-  // Early return if text is too long
+  // Early return if text is too short or too long
+  if (text.length < MIN_TEXT_LENGTH) {
+    console.log('checkAndSaveData controller ERROR: text too long');
+    req.user.issues.text.push(`Tu as vécu une grande aventure, on compte sur toi pour nous en dire un peu plus !`);
+  }
   if (text.length > MAX_TEXT_LENGTH) {
     console.log('checkAndSaveData controller ERROR: text too long');
     req.user.issues.text.push(`Le text est trop long (${text.length})`);
+  }
+
+  if (req.user.issues.text.length > 0) {
+    console.log('checkAndSaveData controller ERROR: text too long or too short');
+
+    res.json({
+      success: false,
+      data: {
+        issues: req.user.issues,
+      },
+    });
+
+    return;
   }
 
   // Check GPX files validity
@@ -169,7 +189,6 @@ async function checkAndSaveData(req, res, next) {
   console.log('checkAndSaveData controller: before parseGpx worker launch');
 
   let challPoints;
-  let gpxContentIssue;
 
   const result = await runParseGpxWorker({
     strs: challGpxStrings,
@@ -177,7 +196,7 @@ async function checkAndSaveData(req, res, next) {
   });
 
   if (result.error) {
-    gpxContentIssue = result.error.message;
+    req.user.issues.gpxFiles.push(result.error.message);
   } else {
     challPoints = result.flat();
   }
@@ -185,9 +204,8 @@ async function checkAndSaveData(req, res, next) {
   console.log('checkAndSaveData controller: after parseGpx worker finished');
 
   // Early return if GPX files are not valid
-  if (gpxContentIssue) {
+  if (req.user.issues.gpxFiles.length > 0) {
     console.log('checkAndSaveData controller ERROR: challenger GPX not valid');
-    req.user.issues.gpxFiles.push(gpxContentIssue);
 
     res.json({
       success: false,
@@ -209,6 +227,16 @@ async function checkAndSaveData(req, res, next) {
     auth,
     name: submissionFolderName,
     parent: challengerFolderId,
+  });
+
+  // Send email
+  console.log('checkAndSaveData controller: notify by email');
+  await mailer.notify({
+    challengerFolderId,
+    firstname,
+    lastname,
+    submissionFolderId,
+    text,
   });
 
   // Save text file on Google Drive
@@ -282,13 +310,6 @@ async function checkAndSaveData(req, res, next) {
   }
 
   console.log('checkAndSaveData controller: after compareTracks worker finished');
-
-  // Send email
-  console.log('checkAndSaveData controller: notify by email');
-  await mailer.notify({
-    challengerFolderId,
-    submissionFolderId,
-  });
 };
 
 module.exports = checkAndSaveData;
