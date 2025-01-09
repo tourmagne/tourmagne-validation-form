@@ -22,8 +22,6 @@ const {
 
 const generateFullGpxStr = require('../utils/generateFullGpxStr');
 
-const { FileError } = require('../utils/errors');
-
 // Function to fix encoding issue with multer (see https://github.com/expressjs/multer/issues/1104)
 function filenameAsUTF8(originalname) {
   return Buffer.from(originalname, 'latin1').toString('utf8');
@@ -62,22 +60,11 @@ async function compare({
   // Check if reference track available on Google Drive
   let refGpxString;
 
-  try {
-    refGpxString = await gdrive.readFile({
-      auth,
-      filename: REF_TRACK_FILENAME,
-      folderId: challengerFolderId,
-    });
-  } catch (error) {
-    if (error instanceof FileError) {
-      // TODO : write error file in Google Drive
-      console.log(error.message);
-
-      return;
-    } else {
-      throw error;
-    }
-  }
+  refGpxString = await gdrive.readFile({
+    auth,
+    filename: REF_TRACK_FILENAME,
+    folderId: challengerFolderId,
+  });
 
   const parsedGpx = await runParseGpxWorker({
     strs: [refGpxString],
@@ -108,7 +95,7 @@ async function compare({
   await gdrive.saveFile({
     auth,
     buffer: gpxStr,
-    fileName: 'gpxComparison.gpx',
+    fileName: 'gpxComparisonSynthesis.gpx',
     folderId: submissionFolderId,
     mimeType: 'application/gpx+xml',
   });
@@ -172,7 +159,7 @@ async function checkAndSaveData(req, res, next) {
 
   // Early return if text is too long
   if (text.length > MAX_TEXT_LENGTH) {
-    console.log('checkAndSaveData controller: returning an handled error - Text too long');
+    console.log('checkAndSaveData controller ERROR: text too long');
     req.user.issues.text.push(`Le text est trop long (${text.length})`);
   }
 
@@ -199,7 +186,7 @@ async function checkAndSaveData(req, res, next) {
 
   // Early return if GPX files are not valid
   if (gpxContentIssue) {
-    console.log('checkAndSaveData controller: returning an handled error - Challenger GPX not valid');
+    console.log('checkAndSaveData controller ERROR: challenger GPX not valid');
     req.user.issues.gpxFiles.push(gpxContentIssue);
 
     res.json({
@@ -272,12 +259,25 @@ async function checkAndSaveData(req, res, next) {
   });
 
   // Compare tracks
-  await compare({
-    auth,
-    challengerFolderId,
-    challPoints,
-    submissionFolderId,
-  });
+  try {
+    await compare({
+      auth,
+      challengerFolderId,
+      challPoints,
+      submissionFolderId,
+    });
+  } catch (error) {
+    console.log(`checkAndSaveData controller ERROR during reference gpx parsing or gpx comparison: ${error.message}`);
+    console.log('checkAndSaveData controller: writing error file on Google Drive');
+
+    await gdrive.saveFile({
+      auth,
+      buffer: JSON.stringify(error, Object.getOwnPropertyNames(error)),
+      fileName: 'Error during reference GPX upload or GPX comparison.txt',
+      folderId: submissionFolderId,
+      mimeType: 'text/plain',
+    });
+  }
 
   // Send email
   console.log('checkAndSaveData controller: notify by email');
