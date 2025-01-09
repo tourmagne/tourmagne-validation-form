@@ -1,6 +1,10 @@
 'use strict';
 
-require('dotenv').config();
+const env = process.env.NODE_ENV || 'dev';
+
+require('@dotenvx/dotenvx').config({
+  path: `.env.${env}`,
+});
 
 const app = require('./app');
 const port = process.env.PORT || 3000;
