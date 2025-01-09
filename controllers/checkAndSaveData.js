@@ -1,10 +1,11 @@
 'use strict';
 
+const { Worker } = require('node:worker_threads');
+const path = require('path');
+
 const {
-  compareTracks,
   gdrive,
   mailer,
-  parseGpx,
 } = require('../services');
 
 const {
@@ -80,7 +81,11 @@ async function compare({
     }
   }
 
-  const refPoints = await parseGpx([refGpxString], { timestampsRequired: false }).flat();
+  const parsedGpx = await runParseGpxWorker({
+    strs: [refGpxString],
+    options: { timestampsRequired: false },
+  });
+  const refPoints = parsedGpx.flat();
 
   // Compare tracks
   const options = {
@@ -91,10 +96,12 @@ async function compare({
     maxSegLength: MAX_SEG_LENGTH, // in meters
   };
 
-  const results = compareTracks(
-    refPoints,
-    challPoints,
-    options,
+  const results = await runCompareTracksWorker(
+    {
+      refPoints,
+      challPoints,
+      options,
+    },
   );
 
   const gpxStr = generateFullGpxStr(results);
@@ -106,6 +113,36 @@ async function compare({
     fileName: 'gpxComparison.gpx',
     folderId: submissionFolderId,
     mimeType: 'application/gpx+xml',
+  });
+}
+
+function runParseGpxWorker(workerData) {
+  return new Promise((resolve, reject) => {
+    const workerPath = path.join(__dirname, '../workers/parseGpx.js');
+    const worker = new Worker(workerPath, { workerData });
+
+    worker.on('message', (result) => resolve(result));
+    worker.on('error', (error) => reject(error));
+    worker.on('exit', (code) => {
+      if (code !== 0) {
+        reject(new Error(`Worker stopped with exit code ${code}`));
+      }
+    });
+  });
+}
+
+function runCompareTracksWorker(workerData) {
+  return new Promise((resolve, reject) => {
+    const workerPath = path.join(__dirname, '../workers/compareTracks.js');
+    const worker = new Worker(workerPath, { workerData });
+
+    worker.on('message', (result) => resolve(result));
+    worker.on('error', (error) => reject(error));
+    worker.on('exit', (code) => {
+      if (code !== 0) {
+        reject(new Error(`Worker stopped with exit code ${code}`));
+      }
+    });
   });
 }
 
@@ -132,7 +169,11 @@ async function checkAndSaveData(req, res, next) {
   let challPoints;
   let gpxContentIssue;
   try {
-    challPoints = await parseGpx(challGpxStrings, { timestampsRequired: true }).flat();
+    const parsedGpx = await runParseGpxWorker({
+      strs: challGpxStrings,
+      options: { timestampsRequired: true },
+    });
+    challPoints = parsedGpx.flat();
   } catch (error) {
     if (error instanceof ParsingError) {
       gpxContentIssue = error.message;
