@@ -45,9 +45,10 @@ const calculateClosest = (refPoints, challPoints, options) => {
   let challIndex = 0;
   let is1stPointFound = false;
 
+  // eslint-disable-next-line no-unused-vars
   return refPoints.map((refPoint, index) => {
-    const progress = (Math.round((index / refPoints.length) * 10_000) / 100).toFixed(2);
-    console.log(`    - Progress: ${progress} %`);
+    // const progress = (Math.round((index / refPoints.length) * 10_000) / 100).toFixed(2);
+    // console.log(`    - Progress: ${progress} %`);
 
     // challLocalIndex: running index on challenge track used to find closest point
     let challLocalIndex = challIndex;

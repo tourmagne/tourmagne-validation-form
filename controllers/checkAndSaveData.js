@@ -249,6 +249,7 @@ async function checkAndSaveData(req, res, next) {
   const gpxFilelist = gpxFiles.map((file) => filenameAsUTF8(file.originalname));
   const photoFilelist = photoFiles.map((file) => filenameAsUTF8(file.originalname));
 
+  console.log('checkAndSaveData controller: send response to browser');
   res.json({
     success: true,
     data: {
@@ -259,6 +260,7 @@ async function checkAndSaveData(req, res, next) {
   });
 
   // Compare tracks
+  console.log('checkAndSaveData controller: before compareTracks worker launch');
   try {
     await compare({
       auth,
@@ -278,6 +280,8 @@ async function checkAndSaveData(req, res, next) {
       mimeType: 'text/plain',
     });
   }
+
+  console.log('checkAndSaveData controller: after compareTracks worker finished');
 
   // Send email
   console.log('checkAndSaveData controller: notify by email');
