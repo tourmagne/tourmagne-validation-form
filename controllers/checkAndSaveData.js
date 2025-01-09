@@ -162,6 +162,17 @@ async function checkAndSaveData(req, res, next) {
     },
   } = req;
 
+  if (!challengerFolderId) {
+    req.user.issues.generic.push('Missing folder id in query params');
+
+    return res.json({
+      success: false,
+      data: {
+        issues: req.user.issues,
+      },
+    });
+  }
+
   // Early return if text is too long
   if (text.length > MAX_TEXT_LENGTH) {
     console.log('checkAndSaveData controller: returning an handled error - Text too long');
