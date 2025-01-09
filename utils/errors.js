@@ -6,7 +6,7 @@ class ParsingError extends Error {
   }
 }
 
-class UnavailableFileError extends Error {
+class FileError extends Error {
   constructor(message) {
     super(message);
   }
@@ -14,5 +14,5 @@ class UnavailableFileError extends Error {
 
 module.exports = {
   ParsingError,
-  UnavailableFileError,
+  FileError,
 };

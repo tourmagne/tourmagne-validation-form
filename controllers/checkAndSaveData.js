@@ -7,20 +7,23 @@ const {
   parseGpx,
 } = require('../services');
 
-const { COMPARATOR_OPTIONS: {
-  MAX_DETOUR,
-  MAX_SEG_LENGTH,
-  REF_TRACK_FILENAME,
-  ROLLING_DURATION,
-  TOLERANCE,
-  TRIGGER,
-} } = require('../constants');
+const {
+  COMPARATOR_OPTIONS: {
+    MAX_DETOUR,
+    MAX_SEG_LENGTH,
+    REF_TRACK_FILENAME,
+    ROLLING_DURATION,
+    TOLERANCE,
+    TRIGGER,
+  },
+  MAX_TEXT_LENGTH,
+} = require('../constants');
 
 const generateFullGpxStr = require('../utils/generateFullGpxStr');
 
 const {
   ParsingError,
-  UnavailableFileError,
+  FileError,
 } = require('../utils/errors');
 
 // Function to fix encoding issue with multer (see https://github.com/expressjs/multer/issues/1104)
@@ -67,7 +70,8 @@ async function compare({
       folderId: challengerFolderId,
     });
   } catch (error) {
-    if (error instanceof UnavailableFileError) {
+    if (error instanceof FileError) {
+      // TODO : write error file in Google Drive
       console.log(error.message);
 
       return;
@@ -139,6 +143,12 @@ async function checkAndSaveData(req, res, next) {
 
   console.log('checkAndSaveData controller: after parseGpx service finished');
 
+  // Early return if text is too long
+  if (text.length > MAX_TEXT_LENGTH) {
+    console.log('checkAndSaveData controller: returning an handled error');
+    req.user.issues.text.push(`Le text est trop long (${text.length})`);
+  }
+
   // Early return if GPX files are not valid
   if (gpxContentIssue) {
     console.log('checkAndSaveData controller: returning an handled error');
@@ -155,7 +165,6 @@ async function checkAndSaveData(req, res, next) {
   }
 
   // Else, save files on Google Drive
-
   console.log('checkAndSaveData controller: get authorization from Google Drive');
   const auth = await gdrive.getAuthorization();
 

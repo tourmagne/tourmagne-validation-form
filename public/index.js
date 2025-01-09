@@ -14,6 +14,7 @@ async function submitForm(event) {
   const photoFilesInputEl = document.getElementById('photoFilesInput');
   const photoIssuesEl = document.getElementById('photoIssues');
   const submitButtonEl = document.getElementById('submitButton');
+  const textIssuesEl = document.getElementById('textIssues');
 
   // Update the display when the submit button is clicked
   genericIssuesEl.innerText = '';
@@ -24,6 +25,7 @@ async function submitForm(event) {
   photoIssuesEl.innerText = '';
   photoFilesInputEl.disabled = true;
   submitButtonEl.disabled = true;
+  textIssuesEl.innerText = '';
 
   // Build a FormData object to POST the form later
   const challengerFolderId = document.getElementById('challengerFolderId').value;
@@ -63,12 +65,14 @@ async function submitForm(event) {
           generic = [],
           gpxFiles = [],
           photoFiles = [],
+          text = [],
         },
       } = data;
 
       const genericIssuesString = generic?.join('\n');
       const gpxIssuesString = gpxFiles?.join('\n');
       const photoIssuesString = photoFiles?.join('\n');
+      const textIssuesString = text?.join('\n');
 
       genericIssuesEl.innerText = genericIssuesString,
       gpxIssuesEl.innerText = gpxIssuesString;
@@ -76,6 +80,7 @@ async function submitForm(event) {
       submitButtonEl.disabled = false;
       gpxFilesInputEl.disabled = false;
       photoFilesInputEl.disabled = false;
+      textIssuesEl.innerText = textIssuesString;
     }
   } catch (error) {
     console.error('Error:', error);
