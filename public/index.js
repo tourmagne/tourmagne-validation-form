@@ -20,7 +20,7 @@ async function submitForm(event) {
   genericIssuesEl.innerText = '';
   gpxIssuesEl.innerText = '';
   gpxFilesInputEl.disabled = true;
-  messageEl.innerHTML = 'Analyse des fichiers en cours';
+  messageEl.innerHTML = 'Analyse des fichiers en cours. Ne fermez pas cette fenêtre, cette analyse peut durer quelques minutes si vos fichiers sont volumineux';
   messageEl.classList.toggle('d-none');
   photoIssuesEl.innerText = '';
   photoFilesInputEl.disabled = true;

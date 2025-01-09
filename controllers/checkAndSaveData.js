@@ -64,6 +64,7 @@ async function compare({
 }) {
   // Check if reference track available on Google Drive
   let refGpxString;
+
   try {
     refGpxString = await gdrive.readFile({
       auth,
@@ -161,10 +162,16 @@ async function checkAndSaveData(req, res, next) {
     },
   } = req;
 
+  // Early return if text is too long
+  if (text.length > MAX_TEXT_LENGTH) {
+    console.log('checkAndSaveData controller: returning an handled error - Text too long');
+    req.user.issues.text.push(`Le text est trop long (${text.length})`);
+  }
+
   // Check GPX files validity
   const challGpxStrings = gpxFiles.map((file) => file.buffer.toString());
 
-  console.log('checkAndSaveData controller: before parseGpx service launch');
+  console.log('checkAndSaveData controller: before parseGpx worker launch');
 
   let challPoints;
   let gpxContentIssue;
@@ -182,17 +189,11 @@ async function checkAndSaveData(req, res, next) {
     }
   }
 
-  console.log('checkAndSaveData controller: after parseGpx service finished');
-
-  // Early return if text is too long
-  if (text.length > MAX_TEXT_LENGTH) {
-    console.log('checkAndSaveData controller: returning an handled error');
-    req.user.issues.text.push(`Le text est trop long (${text.length})`);
-  }
+  console.log('checkAndSaveData controller: after parseGpx worker finished');
 
   // Early return if GPX files are not valid
   if (gpxContentIssue) {
-    console.log('checkAndSaveData controller: returning an handled error');
+    console.log('checkAndSaveData controller: returning an handled error - Challenger GPX not valid');
     req.user.issues.gpxFiles.push(gpxContentIssue);
 
     res.json({
@@ -252,6 +253,18 @@ async function checkAndSaveData(req, res, next) {
     mimeType: 'application/gpx+xml',
   });
 
+  const gpxFilelist = gpxFiles.map((file) => filenameAsUTF8(file.originalname));
+  const photoFilelist = photoFiles.map((file) => filenameAsUTF8(file.originalname));
+
+  res.json({
+    success: true,
+    data: {
+      text,
+      gpxFilelist,
+      photoFilelist,
+    },
+  });
+
   // Compare tracks
   await compare({
     auth,
@@ -265,18 +278,6 @@ async function checkAndSaveData(req, res, next) {
   await mailer.notify({
     challengerFolderId,
     submissionFolderId,
-  });
-
-  const gpxFilelist = gpxFiles.map((file) => filenameAsUTF8(file.originalname));
-  const photoFilelist = photoFiles.map((file) => filenameAsUTF8(file.originalname));
-
-  res.json({
-    success: true,
-    data: {
-      text,
-      gpxFilelist,
-      photoFilelist,
-    },
   });
 };
 
