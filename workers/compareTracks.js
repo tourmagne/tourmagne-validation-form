@@ -1,6 +1,10 @@
 'use strict';
 
 const geolib = require('geolib');
+const {
+  parentPort,
+  workerData,
+} = require('node:worker_threads');
 
 // Calculate challenger passage time at each ref point
 // -> [{lat, lon, time, closestDist}]
@@ -317,7 +321,13 @@ const validateOptions = (options) => {
   }
 };
 
-const compareTracks = (refPoints, challPoints, options) => {
+const compareTracks = (workerData) => {
+  const {
+    refPoints,
+    challPoints,
+    options,
+  } = workerData;
+
   validateOptions(options);
 
   // Extend refPoints with missed segments
@@ -350,5 +360,9 @@ const compareTracks = (refPoints, challPoints, options) => {
     kpi,
   };
 };
-
-module.exports = compareTracks;
+try {
+  const result = compareTracks(workerData);
+  parentPort.postMessage(result);
+} catch (err) {
+  parentPort.postMessage({ error: err.message });
+}

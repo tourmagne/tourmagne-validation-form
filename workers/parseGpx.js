@@ -1,3 +1,7 @@
+const {
+  parentPort,
+  workerData,
+} = require('node:worker_threads');
 const { XMLParser } = require('fast-xml-parser');
 
 const { ParsingError } = require('../utils/errors');
@@ -18,7 +22,14 @@ const sortFiles = (trkptsArr) => {
 
 // Parse gpx string
 // -> [{lat, lon, time}]
-const parseGpx = (strs, { timestampsRequired = false }) => {
+const parseGpx = (workerData) => {
+  const {
+    strs,
+    options: {
+      timestampsRequired = false,
+    },
+  } = workerData;
+
   const parser = new XMLParser({
     ignoreAttributes: false,
     parseAttributeValue: true,
@@ -70,4 +81,9 @@ const parseGpx = (strs, { timestampsRequired = false }) => {
   return trkptsLines.map((line) => line.map((trkpt) => keepLatLonTime(trkpt)));
 };
 
-module.exports = parseGpx;
+try {
+  const result = parseGpx(workerData);
+  parentPort.postMessage(result);
+} catch (err) {
+  parentPort.postMessage({ error: err.message });
+}
