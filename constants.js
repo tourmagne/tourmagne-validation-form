@@ -28,7 +28,7 @@ switch (process.env.NODE_ENV) {
       COMPARATOR_OPTIONS: {
         MAX_DETOUR: 20_000, // in meters
         MAX_SEG_LENGTH: 200, // in meters
-        REF_TRACK_FILENAME: 'monotrace.gpx',
+        REF_TRACK_FILENAME: 'mini-monotrace.gpx',
         ROLLING_DURATION: 1, // in hours
         TOLERANCE: 80, // in meters
         TRIGGER: 8, // in meters - trigger must be less than tolerance
