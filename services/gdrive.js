@@ -5,7 +5,7 @@ const { Readable } = require('node:stream');
 const { google } = require('googleapis');
 
 const {
-  UnavailableFileError,
+  FileError,
 } = require('../utils/errors');
 
 const {
@@ -71,38 +71,33 @@ async function listFiles({ auth }) {
 
 // Read specific file
 async function readFile({ auth, filename, folderId }) {
-  try {
-    const drive = google.drive({ version: 'v3', auth });
+  const drive = google.drive({ version: 'v3', auth });
 
-    // Search for the file in the folder
-    const fileList = await drive.files.list({
-      q: `'${folderId}' in parents and name = '${filename}' and trashed = false`,
-      fields: 'files(id, name)',
-    });
+  // Search for the file in the folder
+  const fileList = await drive.files.list({
+    q: `'${folderId}' in parents and name = '${filename}' and trashed = false`,
+    fields: 'files(id, name)',
+  });
 
-    const files = fileList?.data?.files;
+  const files = fileList?.data?.files;
 
-    if (!files.length) {
-      throw new UnavailableFileError(`File '${filename}' not found in folder '${folderId}'.`);
-    }
-
-    const fileId = files[0].id;
-    console.log(`Found file: ${files[0].name} (ID: ${fileId})`);
-
-    const file = await drive.files.get(
-      { fileId, alt: 'media' },
-      { responseType: 'text' },
-    );
-
-    return file.data;
-  } catch (error) {
-    if (error instanceof UnavailableFileError) {
-      // TODO : write file to Drive explainint the error
-      console.log(error.message);
-    } else {
-      throw error;
-    }
+  if (!files.length) {
+    throw new FileError(`File '${filename}' not found in folder '${folderId}'.`);
   }
+
+  if (files.length > 1) {
+    throw new FileError(`${files.length} files named '${filename}' found in folder '${folderId}'. There should only be one such file.`);
+  }
+
+  const fileId = files[0].id;
+  console.log(`Found file: ${files[0].name} (ID: ${fileId})`);
+
+  const file = await drive.files.get(
+    { fileId, alt: 'media' },
+    { responseType: 'text' },
+  );
+
+  return file.data;
 }
 
 /**

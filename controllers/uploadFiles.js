@@ -46,6 +46,7 @@ function uploadFiles(req, res, next) {
       generic: [],
       gpxFiles: [],
       photoFiles: [],
+      text: [],
     },
   };
 
