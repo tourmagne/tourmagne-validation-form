@@ -22,10 +22,7 @@ const {
 
 const generateFullGpxStr = require('../utils/generateFullGpxStr');
 
-const {
-  ParsingError,
-  FileError,
-} = require('../utils/errors');
+const { FileError } = require('../utils/errors');
 
 // Function to fix encoding issue with multer (see https://github.com/expressjs/multer/issues/1104)
 function filenameAsUTF8(originalname) {
@@ -84,7 +81,7 @@ async function compare({
 
   const parsedGpx = await runParseGpxWorker({
     strs: [refGpxString],
-    options: { timestampsRequired: false },
+    options: { challengerGpx: false },
   });
   const refPoints = parsedGpx.flat();
 
@@ -186,18 +183,16 @@ async function checkAndSaveData(req, res, next) {
 
   let challPoints;
   let gpxContentIssue;
-  try {
-    const parsedGpx = await runParseGpxWorker({
-      strs: challGpxStrings,
-      options: { timestampsRequired: true },
-    });
-    challPoints = parsedGpx.flat();
-  } catch (error) {
-    if (error instanceof ParsingError) {
-      gpxContentIssue = error.message;
-    } else {
-      throw error;
-    }
+
+  const result = await runParseGpxWorker({
+    strs: challGpxStrings,
+    options: { challengerGpx: true },
+  });
+
+  if (result.error) {
+    gpxContentIssue = result.error.message;
+  } else {
+    challPoints = result.flat();
   }
 
   console.log('checkAndSaveData controller: after parseGpx worker finished');

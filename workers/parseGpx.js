@@ -26,7 +26,7 @@ const parseGpx = (workerData) => {
   const {
     strs,
     options: {
-      timestampsRequired = false,
+      challengerGpx = false,
     },
   } = workerData;
 
@@ -59,7 +59,7 @@ const parseGpx = (workerData) => {
   });
 
   // For challenger tracks, check if they have timestamps
-  if (timestampsRequired) {
+  if (challengerGpx) {
     if (trkptsArr.some((trkptsFile) => typeof trkptsFile[0][0].time === 'undefined')) {
       throw new ParsingError('Tes fichiers GPX ne sont pas conformes car au moins l\'un d\'eux ne contient pas de données temporelles (heure de passage à chaque point GPS)');
     }
@@ -84,6 +84,10 @@ const parseGpx = (workerData) => {
 try {
   const result = parseGpx(workerData);
   parentPort.postMessage(result);
-} catch (err) {
-  parentPort.postMessage({ error: err.message });
+} catch (error) {
+  if (workerData?.options?.challengerGpx && error instanceof ParsingError) {
+    parentPort.postMessage({ error });
+  } else {
+    throw error;
+  }
 }

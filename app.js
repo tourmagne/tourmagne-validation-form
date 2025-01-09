@@ -44,8 +44,6 @@ app.post('/',
 );
 
 // Error handler
-
-// eslint-disable-next-line no-unused-vars
 app.use(async (err, req, res, next) => {
   if (res.headersSent) {
     return next(err);
