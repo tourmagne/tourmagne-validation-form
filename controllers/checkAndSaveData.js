@@ -22,6 +22,7 @@ const {
 } = require('../constants');
 
 const generateFullGpxStr = require('../utils/generateFullGpxStr');
+const generateHtmlFile = require('../utils/generateHtmlFile');
 
 // Function to fix encoding issue with multer (see https://github.com/expressjs/multer/issues/1104)
 function filenameAsUTF8(originalname) {
@@ -56,6 +57,8 @@ async function compare({
   auth,
   challengerFolderId,
   challPoints,
+  firstname,
+  lastname,
   submissionFolderId,
 }) {
   // Check if reference track available on Google Drive
@@ -99,6 +102,21 @@ async function compare({
     fileName: 'gpxComparisonSynthesis.gpx',
     folderId: submissionFolderId,
     mimeType: 'application/gpx+xml',
+  });
+
+  const htmlFile = generateHtmlFile({
+    firstname,
+    lastname,
+    results,
+  });
+
+  // Write result html file to Google Drive
+  await gdrive.saveFile({
+    auth,
+    buffer: htmlFile,
+    fileName: 'syntheseDuChallenge.html',
+    folderId: submissionFolderId,
+    mimeType: 'text/html',
   });
 }
 
@@ -294,6 +312,8 @@ async function checkAndSaveData(req, res, next) {
       auth,
       challengerFolderId,
       challPoints,
+      firstname,
+      lastname,
       submissionFolderId,
     });
   } catch (error) {
