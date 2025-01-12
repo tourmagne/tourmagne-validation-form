@@ -180,7 +180,7 @@ async function checkAndSaveData(req, res, next) {
 
   // Early return if text is too short or too long
   if (text.length < MIN_TEXT_LENGTH) {
-    console.log('checkAndSaveData controller ERROR: text too long');
+    console.log('checkAndSaveData controller ERROR: text too short');
     req.user.issues.text.push(`Tu as vécu une grande aventure, on compte sur toi pour nous en dire un peu plus !`);
   }
   if (text.length > MAX_TEXT_LENGTH) {
@@ -189,8 +189,6 @@ async function checkAndSaveData(req, res, next) {
   }
 
   if (req.user.issues.text.length > 0) {
-    console.log('checkAndSaveData controller ERROR: text too long or too short');
-
     res.json({
       success: false,
       data: {

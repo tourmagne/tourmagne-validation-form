@@ -75,6 +75,7 @@ function generateHtmlFile({ firstname, lastname, results }) {
     lastname,
     missedDistance: Math.round(missedDistance / 100) / 10,
     offTrackRatio: Math.round(offTrackRatio * 10_000) / 100,
+    onTrackRation: 100 - Math.round(offTrackRatio * 10_000) / 100,
     rollingDuration,
     startPositionOfSlowestSegment: Math.round(startPositionOfSlowestSegment / 100) / 10,
     timeStr,
