@@ -75,9 +75,9 @@
   <section>
     <ul>
       {{!-- <li><span class=blue>En bleu</span> : trace de référence</li> --}}
-      <li><span class=green>En vert</span> : parcours que tu as réalisé (soit {{onTrackRatio}} % de la trace de référence)</li>
-      <li><span class=red>En rouge</span> : segments de la trace de référence où tu n'est pas passé ({{missedDistance}} km soit {{offTrackRatio}} %)</li>
-      <li><span class=black>En trait évidé blanc</span> : distance parcourue sur la trace de référence pendant les {{rollingDuration}} heures les moins favorables : {{distance}} km à partir du {{dateStr}} à {{timeStr}}, au km {{startPositionOfSlowestSegment}} de la trace de référence</li>
+      <li><span class=green>En vert</span> : le parcours que tu as réalisé (soit {{onTrackRatio}} % de la trace de référence)</li>
+      <li><span class=red>En rouge</span> : les parties de la trace de référence où tu n'est pas passé ({{missedDistance}} km soit {{offTrackRatio}} %)</li>
+      <li><span class=black>En trait évidé blanc</span> : la partie de la trace de référence que tu as parcourue pendant les {{rollingDuration}} heures les moins favorables (c'est à dire {{distance}} km commencés au km {{startPositionOfSlowestSegment}} de la trace de référence, le {{dateStr}} à {{timeStr}})</li>
     </ul>
   </section>
   <div id="map"></div>
