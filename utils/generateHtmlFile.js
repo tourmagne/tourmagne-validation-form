@@ -4,27 +4,13 @@ const fs = require('fs');
 const handlebars = require('handlebars');
 const path = require('path');
 
+const datePlusDurationToStr = require('./datePlusDurationToStr');
+
 function trackToCoordinates(track) {
   const coordinates = track.map((segment) => segment.map((point) => [point.lon, point.lat]));
 
   return JSON.stringify(coordinates);
 }
-
-const datePlusDurationToStr = (date, duration, locale) => {
-  const sumDate = new Date(date.getTime() + duration);
-  const dateStr = sumDate.toLocaleDateString(
-    locale,
-    {
-      weekday: 'long', year: 'numeric', month: 'short', day: 'numeric',
-    },
-  );
-  const timeStr = sumDate.toLocaleTimeString(locale);
-
-  return {
-    dateStr,
-    timeStr,
-  };
-};
 
 function generateHtmlFile({ firstname, lastname, results }) {
   const {
@@ -75,7 +61,7 @@ function generateHtmlFile({ firstname, lastname, results }) {
     lastname,
     missedDistance: Math.round(missedDistance / 100) / 10,
     offTrackRatio: Math.round(offTrackRatio * 10_000) / 100,
-    onTrackRation: 100 - Math.round(offTrackRatio * 10_000) / 100,
+    onTrackRatio: 100 - Math.round(offTrackRatio * 10_000) / 100,
     rollingDuration,
     startPositionOfSlowestSegment: Math.round(startPositionOfSlowestSegment / 100) / 10,
     timeStr,

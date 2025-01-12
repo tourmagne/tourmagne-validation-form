@@ -1,21 +1,6 @@
 'use strict';
 
-const datePlusDurationToStr = (date, duration, locale) => {
-  const sumDate = new Date(date.getTime() + duration);
-  const dateStr = sumDate.toLocaleDateString(
-    locale,
-    { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric', timezone: 'UTC' },
-  );
-  const timeStr = sumDate.toLocaleTimeString(
-    locale,
-    { hour: '2-digit', minute: '2-digit', timezone: 'UTC' },
-  );
-
-  return {
-    dateStr,
-    timeStr,
-  };
-};
+const datePlusDurationToStr = require('./datePlusDurationToStr');
 
 const generateTrk = (segments, options) => {
   const {

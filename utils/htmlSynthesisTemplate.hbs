@@ -71,11 +71,11 @@
 </head>
 
 <body>
-  <h1>{{firsname}} {{lastname}}, voici la synthèse de ton challenge du Tourmagne</h1>
+  <h1>{{firstname}} {{lastname}}, voici la synthèse de ton challenge du Tourmagne</h1>
   <section>
     <ul>
       {{!-- <li><span class=blue>En bleu</span> : trace de référence</li> --}}
-      <li><span class=green>En vert</span> : parcours que tu as réalisé (soit {{onTrackRatio}} de la trace de référence)</li>
+      <li><span class=green>En vert</span> : parcours que tu as réalisé (soit {{onTrackRatio}} % de la trace de référence)</li>
       <li><span class=red>En rouge</span> : segments de la trace de référence où tu n'est pas passé ({{missedDistance}} km soit {{offTrackRatio}} %)</li>
       <li><span class=black>En trait évidé blanc</span> : distance parcourue sur la trace de référence pendant les {{rollingDuration}} heures les moins favorables : {{distance}} km à partir du {{dateStr}} à {{timeStr}}, au km {{startPositionOfSlowestSegment}} de la trace de référence</li>
     </ul>
