@@ -70,11 +70,17 @@ async function compare({
     folderId: challengerFolderId,
   });
 
-  const parsedGpx = await runParseGpxWorker({
+  const result = await runParseGpxWorker({
     strs: [refGpxString],
     options: { challengerGpx: false },
   });
-  const refPoints = parsedGpx.flat();
+
+  let refPoints;
+  if (result.error) {
+    throw new Error('Error while parsing reference GPX file');
+  } else {
+    refPoints = result.flat();
+  }
 
   // Compare tracks
   const options = {
@@ -204,13 +210,12 @@ async function checkAndSaveData(req, res, next) {
 
   console.log('checkAndSaveData controller: before parseGpx worker launch');
 
-  let challPoints;
-
   const result = await runParseGpxWorker({
     strs: challGpxStrings,
     options: { challengerGpx: true },
   });
 
+  let challPoints;
   if (result.error) {
     req.user.issues.gpxFiles.push(result.error.message);
   } else {
@@ -315,7 +320,7 @@ async function checkAndSaveData(req, res, next) {
       submissionFolderId,
     });
   } catch (error) {
-    console.log(`checkAndSaveData controller ERROR during reference gpx parsing or gpx comparison: ${error.message}`);
+    console.log(`checkAndSaveData controller ERROR during comparison: ${error.message}`);
     console.log('checkAndSaveData controller: writing error file on Google Drive');
 
     await gdrive.saveFile({

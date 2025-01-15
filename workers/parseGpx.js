@@ -41,7 +41,14 @@ const parseGpx = (workerData) => {
   // 2nd level reprensents <trkseg>
   // 3rd level represent <trkpt>
   const trkptsArr = strs.map((str) => {
-    const gpx = parser.parse(str);
+    let gpx;
+
+    try {
+      gpx = parser.parse(str);
+    // eslint-disable-next-line no-unused-vars
+    } catch (error) {
+      throw new ParsingError('Au moins un des fichiers soumis n\'est pas un fichier GPX valide');
+    }
     const trks = gpx?.gpx?.trk;
 
     let trksegs;
@@ -85,7 +92,7 @@ try {
   const result = parseGpx(workerData);
   parentPort.postMessage(result);
 } catch (error) {
-  if (workerData?.options?.challengerGpx && error instanceof ParsingError) {
+  if (error instanceof ParsingError) {
     parentPort.postMessage({ error });
   } else {
     throw error;
