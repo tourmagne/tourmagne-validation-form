@@ -24,6 +24,7 @@ const sortFiles = (trkptsArr) => {
 // -> [{lat, lon, time}]
 const parseGpx = (workerData) => {
   const {
+    filenames,
     strs,
     options: {
       challengerGpx = false,
@@ -36,18 +37,22 @@ const parseGpx = (workerData) => {
     attributeNamePrefix: '',
   });
 
+  let invalidFiles = [];
+
   // trkptsArr is an array with 3 levels
   // 1st level represents the file
   // 2nd level reprensents <trkseg>
   // 3rd level represent <trkpt>
-  const trkptsArr = strs.map((str) => {
+  const trkptsArr = strs.map((str, index) => {
     let gpx;
 
     try {
       gpx = parser.parse(str);
     // eslint-disable-next-line no-unused-vars
     } catch (error) {
-      throw new ParsingError('Au moins un des fichiers soumis n\'est pas un fichier GPX valide');
+      invalidFiles.push(filenames[index]);
+
+      return undefined;
     }
     const trks = gpx?.gpx?.trk;
 
@@ -64,6 +69,10 @@ const parseGpx = (workerData) => {
     }
     return [trksegs?.trkpt];
   });
+
+  if (invalidFiles.length > 0) {
+    throw new ParsingError(`Le ou les fichiers suivants ne sont pas des fichiers GPX valides :\n - ${invalidFiles.join('\n - ')}`);
+  }
 
   // For challenger tracks, check if they have timestamps
   if (challengerGpx) {
@@ -92,7 +101,7 @@ try {
   const result = parseGpx(workerData);
   parentPort.postMessage(result);
 } catch (error) {
-  if (error instanceof ParsingError) {
+  if (error instanceof ParsingError && workerData.options?.challengerGpx) {
     parentPort.postMessage({ error });
   } else {
     throw error;

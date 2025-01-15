@@ -61,26 +61,23 @@ async function compare({
   lastname,
   submissionFolderId,
 }) {
+  const filename = REF_TRACK_FILENAME;
+
   // Check if reference track available on Google Drive
   let refGpxString;
 
   refGpxString = await gdrive.readFile({
     auth,
-    filename: REF_TRACK_FILENAME,
+    filename,
     folderId: challengerFolderId,
   });
 
-  const result = await runParseGpxWorker({
+  const parsedGpx = await runParseGpxWorker({
+    filenames: [filename],
     strs: [refGpxString],
     options: { challengerGpx: false },
   });
-
-  let refPoints;
-  if (result.error) {
-    throw new Error('Error while parsing reference GPX file');
-  } else {
-    refPoints = result.flat();
-  }
+  const refPoints = parsedGpx.flat();
 
   // Compare tracks
   const options = {
@@ -211,6 +208,7 @@ async function checkAndSaveData(req, res, next) {
   console.log('checkAndSaveData controller: before parseGpx worker launch');
 
   const result = await runParseGpxWorker({
+    filenames: gpxFiles.map((file) => file.originalname),
     strs: challGpxStrings,
     options: { challengerGpx: true },
   });

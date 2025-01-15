@@ -23,7 +23,7 @@ switch (process.env.NODE_ENV) {
   case 'dev':
     constants = {
       MAX_FILE_SIZE: 2 * 1024 * 1024,
-      MAX_GPX_NB: 2,
+      MAX_GPX_NB: 3,
       MAX_PHOTO_NB: 2,
       MIN_TEXT_LENGTH: 5, // in string length
       MAX_TEXT_LENGTH: 10_000, // in string length
