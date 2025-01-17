@@ -91,8 +91,12 @@ const parseGpx = (workerData) => {
   // 2nd level reprensents <trkpt>
   const trkptsLines = trkptsArr.flat();
 
-  // Only keep relevant properties (i.e. lat, lon & time)
-  const keepLatLonTime = ({ lat, lon, time }) => ({ lat, lon, time });
+  // Only keep relevant properties and make sur lat & lon are number (i.e. lat, lon & time)
+  const keepLatLonTime = ({ lat, lon, time }) => ({
+    lat: Number(lat),
+    lon: Number(lon),
+    time,
+  });
 
   return trkptsLines.map((line) => line.map((trkpt) => keepLatLonTime(trkpt)));
 };
