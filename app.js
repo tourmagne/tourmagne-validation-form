@@ -10,6 +10,7 @@ const displayForm = require('./controllers/displayForm');
 const uploadFiles = require('./controllers/uploadFiles');
 
 const asyncHandler = require('./utils/ayncHandler');
+const deleteFilesFromServer = require('./utils/deleteFilesFromServer');
 
 const app = express();
 
@@ -45,6 +46,8 @@ app.post('/',
 
 // Error handler
 app.use(async (err, req, res, next) => {
+  await deleteFilesFromServer(next);
+
   if (res.headersSent) {
     return next(err);
   }

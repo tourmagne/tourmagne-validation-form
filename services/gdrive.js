@@ -1,11 +1,11 @@
 'use strict';
 
-const { Readable } = require('node:stream');
+const fs = require('fs');
 const { google } = require('googleapis');
+const { Readable } = require('node:stream');
 
-const {
-  FileError,
-} = require('../utils/errors');
+const { FileError } = require('../utils/errors');
+const filenameAsUTF8 = require('../utils/filenameAsUTF8');
 
 const {
   GDRIVE_CLIENT_EMAIL,
@@ -103,15 +103,16 @@ async function readFile({ auth, filename, folderId }) {
  * Create a new file on google drive.
  * @param {object} params -
  * @param {OAuth2Client} param.auth An authorized OAuth2 client.
- * @param {string} params.textString String to write in Google Drive
  * @param {string} params.folderId Id of the folder to put the file in
  */
-async function saveFile({ auth, buffer, fileName, folderId, mimeType }) {
+async function saveFile({ auth, buffer, fileName, filePath, folderId, mimeType }) {
   const drive = google.drive({ version: 'v3', auth });
+
+  const body = buffer ? Readable.from(buffer) : fs.createReadStream(filePath);
 
   await drive.files.create({
     media: {
-      body: Readable.from(buffer),
+      body,
       mimeType,
     },
     requestBody: {
@@ -120,6 +121,38 @@ async function saveFile({ auth, buffer, fileName, folderId, mimeType }) {
       parents: [folderId],
     },
   });
+}
+
+/**
+ * Create a new files on google drive.
+ * @param {object} params -
+ * @param {OAuth2Client} param.auth An authorized OAuth2 client.
+ * @param {string} params.folderId Id of the folder to put the file in
+ */
+async function saveFiles({
+  auth,
+  files,
+  folderId,
+}) {
+  const promises = files.map((file) => {
+    const {
+      buffer,
+      path: filePath,
+      originalname,
+      mimetype: mimeType,
+    } = file;
+
+    return saveFile({
+      auth,
+      buffer,
+      fileName: filenameAsUTF8(originalname),
+      filePath,
+      folderId,
+      mimeType,
+    });
+  });
+
+  await Promise.all(promises);
 }
 
 /**
@@ -175,4 +208,5 @@ module.exports = {
   listFiles,
   readFile,
   saveFile,
+  saveFiles,
 };

@@ -1,6 +1,9 @@
 'use strict';
 
 const multer = require('multer');
+const path = require('path');
+
+const deleteFilesFromServer = require('../utils/deleteFilesFromServer');
 
 const {
   MAX_FILE_SIZE,
@@ -50,7 +53,14 @@ function uploadFiles(req, res, next) {
     },
   };
 
-  const storage = multer.memoryStorage();
+  const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, path.join(__dirname, '../temp'));
+    },
+    filename: function (req, file, cb) {
+      cb(null, `${new Date().toISOString()} - ${file.originalname}`);
+    },
+  });
 
   const upload = multer({
     fileFilter,
@@ -87,6 +97,7 @@ function uploadFiles(req, res, next) {
 
     if (req.user.issues.gpxFiles.length || req.user.issues.photoFiles.length) {
       console.log('upload controller ERROR: gpx files or photo files error');
+
       res.json({
         success: false,
         data: {
@@ -94,7 +105,7 @@ function uploadFiles(req, res, next) {
         },
       });
 
-      return;
+      return await deleteFilesFromServer(next);
     }
 
     // Other errors (not handled here)

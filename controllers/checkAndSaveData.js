@@ -1,12 +1,15 @@
 'use strict';
 
 const { Worker } = require('node:worker_threads');
+const fs = require('fs').promises;
 const path = require('path');
 
 const {
   gdrive,
   mailer,
 } = require('../services');
+const deleteFilesFromServer = require('../utils/deleteFilesFromServer');
+const filenameAsUTF8 = require('../utils/filenameAsUTF8');
 
 const {
   COMPARATOR_OPTIONS: {
@@ -23,35 +26,6 @@ const {
 
 const generateFullGpxStr = require('../utils/generateFullGpxStr');
 const generateHtmlFile = require('../utils/generateHtmlFile');
-
-// Function to fix encoding issue with multer (see https://github.com/expressjs/multer/issues/1104)
-function filenameAsUTF8(originalname) {
-  return Buffer.from(originalname, 'latin1').toString('utf8');
-}
-
-async function saveFiles({
-  auth,
-  files,
-  folderId,
-}) {
-  const promises = files.map((file) => {
-    const {
-      buffer,
-      originalname,
-      mimeType,
-    } = file;
-
-    return gdrive.saveFile({
-      auth,
-      buffer,
-      fileName: filenameAsUTF8(originalname),
-      folderId,
-      mimeType,
-    });
-  });
-
-  await Promise.all(promises);
-}
 
 async function compare({
   auth,
@@ -153,7 +127,6 @@ function runCompareTracksWorker(workerData) {
   });
 }
 
-// eslint-disable-next-line no-unused-vars
 async function checkAndSaveData(req, res, next) {
   console.log('checkAndSaveData controller: started');
 
@@ -173,12 +146,14 @@ async function checkAndSaveData(req, res, next) {
   if (!challengerFolderId) {
     req.user.issues.generic.push('Missing folder id in query params');
 
-    return res.json({
+    res.json({
       success: false,
       data: {
         issues: req.user.issues,
       },
     });
+
+    return await deleteFilesFromServer(next);
   }
 
   // Early return if text is too short or too long
@@ -199,11 +174,16 @@ async function checkAndSaveData(req, res, next) {
       },
     });
 
-    return;
+    return await deleteFilesFromServer(next);
   }
 
   // Check GPX files validity
-  const challGpxStrings = gpxFiles.map((file) => file.buffer.toString());
+  const fileContentPromises = gpxFiles.map(async (file) => {
+    const fileContent = await fs.readFile(file.path, 'utf-8');
+
+    return fileContent;
+  });
+  const challGpxStrings = await Promise.all(fileContentPromises);
 
   console.log('checkAndSaveData controller: before parseGpx worker launch');
 
@@ -233,7 +213,7 @@ async function checkAndSaveData(req, res, next) {
       },
     });
 
-    return;
+    return await deleteFilesFromServer(next);
   }
 
   // Else, save files on Google Drive
@@ -270,11 +250,10 @@ async function checkAndSaveData(req, res, next) {
 
   // Save photos on Google Drive
   console.log('checkAndSaveData controller: save photo files in Google Drive');
-  await saveFiles({
+  await gdrive.saveFiles({
     auth,
     files: photoFiles,
     folderId: submissionFolderId,
-    mimeType: 'image/jpg',
   });
 
   // Save GPX files on Google Drive
@@ -286,11 +265,10 @@ async function checkAndSaveData(req, res, next) {
   });
 
   console.log('checkAndSaveData controller: save gpx files in Google Drive');
-  await saveFiles({
+  await gdrive.saveFiles({
     auth,
     files: gpxFiles,
     folderId: gpxFolderId,
-    mimeType: 'application/gpx+xml',
   });
 
   const gpxFilelist = gpxFiles.map((file) => filenameAsUTF8(file.originalname));
@@ -305,6 +283,10 @@ async function checkAndSaveData(req, res, next) {
       photoFilelist,
     },
   });
+
+  // Delete gpx & photo files from server
+  console.log('checkAndSaveData controller: start deleting files from server');
+  await deleteFilesFromServer(next);
 
   // Compare tracks
   console.log('checkAndSaveData controller: before compareTracks worker launch');
