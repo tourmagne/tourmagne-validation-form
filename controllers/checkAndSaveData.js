@@ -121,7 +121,7 @@ function runParseGpxWorker(workerData) {
       if (code !== 0) {
         reject(new Error(`Worker stopped with exit code ${code}`));
       } else {
-        console.log(`runParceGpxWorker: worker succesfully exited`);
+        console.log(`runParseGpxWorker: worker succesfully EXITED`);
       }
     });
   });
@@ -138,7 +138,7 @@ function runCompareTracksWorker(workerData) {
       if (code !== 0) {
         reject(new Error(`Worker stopped with exit code ${code}`));
       } else {
-        console.log(`runParceGpxWorker: worker succesfully exited`);
+        console.log(`runCompareTrackWorker: worker succesfully EXITED`);
       }
     });
   });

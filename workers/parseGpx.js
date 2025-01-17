@@ -101,9 +101,9 @@ const parseGpx = (workerData) => {
     time,
   });
 
-  // console.log('parseGpx - avant gc', process.memoryUsage().heapUsed / (1024 * 1024));
-  // global.gc();
-  // console.log('parseGpx - après gc', process.memoryUsage().heapUsed / (1024 * 1024));
+  console.log('parseGpx - avant gc', process.memoryUsage().heapUsed / (1024 * 1024));
+  global.gc();
+  console.log('parseGpx - après gc', process.memoryUsage().heapUsed / (1024 * 1024));
 
   return trkptsLines.map((line) => line.map((trkpt) => keepLatLonTime(trkpt)));
 };
@@ -112,6 +112,7 @@ try {
   parentPort.on('message', (payload) => {
     const result = parseGpx(payload);
     parentPort.postMessage(result);
+    process.exit(0);
   });
 } catch (error) {
   if (error instanceof ParsingError && workerData.options?.challengerGpx) {
