@@ -350,6 +350,10 @@ const compareTracks = (workerData) => {
     kpi.slowestSegmentEnd.index + 1,
   );
 
+  // console.log('compare - avant gc', process.memoryUsage().heapUsed / (1024 * 1024));
+  // global.gc();
+  // console.log('compare - après gc', process.memoryUsage().heapUsed / (1024 * 1024));
+
   return {
     tracks: {
       missedSegments,

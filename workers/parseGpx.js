@@ -25,11 +25,14 @@ const sortFiles = (trkptsArr) => {
 const parseGpx = (workerData) => {
   const {
     filenames,
-    strs,
+    strs: encodedStrs,
     options: {
       challengerGpx = false,
     },
   } = workerData;
+
+  // Decode ArrayBuffers back into strings
+  const strs = encodedStrs.map((buffer) => new TextDecoder().decode(new Uint8Array(buffer)));
 
   const parser = new XMLParser({
     ignoreAttributes: false,
@@ -98,12 +101,18 @@ const parseGpx = (workerData) => {
     time,
   });
 
+  // console.log('parseGpx - avant gc', process.memoryUsage().heapUsed / (1024 * 1024));
+  // global.gc();
+  // console.log('parseGpx - après gc', process.memoryUsage().heapUsed / (1024 * 1024));
+
   return trkptsLines.map((line) => line.map((trkpt) => keepLatLonTime(trkpt)));
 };
 
 try {
-  const result = parseGpx(workerData);
-  parentPort.postMessage(result);
+  parentPort.on('message', (payload) => {
+    const result = parseGpx(payload);
+    parentPort.postMessage(result);
+  });
 } catch (error) {
   if (error instanceof ParsingError && workerData.options?.challengerGpx) {
     parentPort.postMessage({ error });

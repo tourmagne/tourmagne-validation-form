@@ -100,13 +100,28 @@ async function compare({
 function runParseGpxWorker(workerData) {
   return new Promise((resolve, reject) => {
     const workerPath = path.join(__dirname, '../workers/parseGpx.js');
-    const worker = new Worker(workerPath, { workerData });
+
+    // Prepare transferable objects (ArrayBuffer) for challGpxStrings
+    const transferList = workerData.strs.map((str) => {
+      const encoder = new TextEncoder();
+      return encoder.encode(str).buffer;
+    });
+
+    const transferableData = {
+      ...workerData,
+      strs: transferList,
+    };
+
+    const worker = new Worker(workerPath);
+    worker.postMessage(transferableData, transferList);
 
     worker.on('message', (result) => resolve(result));
     worker.on('error', (error) => reject(error));
     worker.on('exit', (code) => {
       if (code !== 0) {
         reject(new Error(`Worker stopped with exit code ${code}`));
+      } else {
+        console.log(`runParceGpxWorker: worker succesfully exited`);
       }
     });
   });
@@ -122,6 +137,8 @@ function runCompareTracksWorker(workerData) {
     worker.on('exit', (code) => {
       if (code !== 0) {
         reject(new Error(`Worker stopped with exit code ${code}`));
+      } else {
+        console.log(`runParceGpxWorker: worker succesfully exited`);
       }
     });
   });
@@ -142,6 +159,8 @@ async function checkAndSaveData(req, res, next) {
       gpxFiles,
     },
   } = req;
+
+  console.log('checkAndSave - start', process.memoryUsage().heapUsed / (1024 * 1024));
 
   if (!challengerFolderId) {
     req.user.issues.generic.push('Missing folder id in query params');
@@ -185,6 +204,8 @@ async function checkAndSaveData(req, res, next) {
   });
   const challGpxStrings = await Promise.all(fileContentPromises);
 
+  console.log('checkAndSave - after challGpxString', process.memoryUsage().heapUsed / (1024 * 1024));
+
   console.log('checkAndSaveData controller: before parseGpx worker launch');
 
   const result = await runParseGpxWorker({
@@ -192,6 +213,8 @@ async function checkAndSaveData(req, res, next) {
     strs: challGpxStrings,
     options: { challengerGpx: true },
   });
+
+  console.log('checkAndSave - after worker parse', process.memoryUsage().heapUsed / (1024 * 1024));
 
   let challPoints;
   if (result.error) {
@@ -288,6 +311,8 @@ async function checkAndSaveData(req, res, next) {
   console.log('checkAndSaveData controller: start deleting files from server');
   await deleteFilesFromServer(next);
 
+  console.log('checkAndSave - before worker compare', process.memoryUsage().heapUsed / (1024 * 1024));
+
   // Compare tracks
   console.log('checkAndSaveData controller: before compareTracks worker launch');
   try {
@@ -299,6 +324,7 @@ async function checkAndSaveData(req, res, next) {
       lastname,
       submissionFolderId,
     });
+    console.log('checkAndSave - after worker compare', process.memoryUsage().heapUsed / (1024 * 1024));
   } catch (error) {
     console.log(`checkAndSaveData controller ERROR during comparison: ${error.message}`);
     console.log('checkAndSaveData controller: writing error file on Google Drive');
