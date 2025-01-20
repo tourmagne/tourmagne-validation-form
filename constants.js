@@ -5,13 +5,13 @@ let constants;
 switch (process.env.NODE_ENV) {
   case 'production':
     constants = {
-      MAX_FILE_SIZE: 25 * 1024 * 1024,
+      MAX_FILE_SIZE: 15 * 1024 * 1024,
       MAX_GPX_NB: 20,
       MAX_PHOTO_NB: 5,
       MIN_TEXT_LENGTH: 50, // in string length
       MAX_TEXT_LENGTH: 10_000, // in string length
       COMPARATOR_OPTIONS: {
-        MAX_DETOUR: 20_000, // in meters
+        MAX_DETOUR: 50_000, // in meters
         MAX_SEG_LENGTH: 200, // in meters
         REF_TRACK_FILENAME: 'monotrace.gpx',
         ROLLING_DURATION: 24, // in hours
