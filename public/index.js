@@ -10,10 +10,11 @@ async function submitForm(event) {
   const genericIssuesEl = document.getElementById('genericIssues');
   const gpxIssuesEl = document.getElementById('gpxIssues');
   const gpxFilesInputEl = document.getElementById('gpxFilesInput');
-  const messageEl = document.querySelector('#message');
+  const messageEl = document.getElementById('message');
   const photoFilesInputEl = document.getElementById('photoFilesInput');
   const photoIssuesEl = document.getElementById('photoIssues');
   const submitButtonEl = document.getElementById('submitButton');
+  const textInputEl = document.getElementById('textInput');
   const textIssuesEl = document.getElementById('textIssues');
 
   // Update the display when the submit button is clicked
@@ -25,6 +26,7 @@ async function submitForm(event) {
   photoIssuesEl.innerText = '';
   photoFilesInputEl.disabled = true;
   submitButtonEl.disabled = true;
+  textInputEl.disabled = true;
   textIssuesEl.innerText = '';
 
   // Build a FormData object to POST the form later
@@ -35,7 +37,7 @@ async function submitForm(event) {
   formData.append('challengerFolderId', challengerFolderId);
   formData.append('firstname', firstname);
   formData.append('lastname', lastname);
-  formData.append('text', document.getElementById('textInput').value);
+  formData.append('text', textInputEl.value);
   Array.from(gpxFilesInputEl.files).forEach((file) => formData.append('gpxFiles', file));
   Array.from(photoFilesInputEl.files).forEach((file) => formData.append('photoFiles', file));
 
@@ -84,6 +86,7 @@ async function submitForm(event) {
       submitButtonEl.disabled = false;
       gpxFilesInputEl.disabled = false;
       photoFilesInputEl.disabled = false;
+      textInputEl.disabled = false;
       textIssuesEl.innerText = textIssuesString;
     }
   } catch (error) {

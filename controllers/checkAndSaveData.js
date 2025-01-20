@@ -50,7 +50,11 @@ async function compare({
     folderId: challengerFolderId,
   });
 
-  logger(`Found file: ${file.name} (ID: ${file.id})`);
+  if (file) {
+    logger(`Compare - Found file: ${filename}`);
+  } else {
+    throw new Error(`Compare - ERROR file not found: ${filename}`);
+  }
 
   const refGpxString = file.data;
 
@@ -90,6 +94,7 @@ async function compare({
     mimeType: 'application/gpx+xml',
   });
 
+  logger('Compare - Start generateHtmlFile');
   const htmlFile = generateHtmlFile({
     firstname,
     lastname,
@@ -97,6 +102,7 @@ async function compare({
   });
 
   // Write result html file to Google Drive
+  logger('Compare - Start saving HTML file on Drive');
   await gdrive.saveFile({
     auth,
     buffer: htmlFile,

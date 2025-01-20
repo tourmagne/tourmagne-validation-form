@@ -1,5 +1,7 @@
 'use strict';
 
+const { AsyncLocalStorage } = require('node:async_hooks');
+
 const express = require('express');
 const exphbs = require('express-handlebars');
 const helmet = require('helmet');
@@ -7,9 +9,9 @@ const path = require('path');
 
 const checkAndSaveData = require('./controllers/checkAndSaveData');
 const displayForm = require('./controllers/displayForm');
+const uploadFiles = require('./controllers/uploadFiles');
 
 const { contextMiddleware } = require('./middlewares/contextMiddleware');
-const uploadFiles = require('./controllers/uploadFiles');
 
 const asyncHandler = require('./utils/ayncHandler');
 const deleteFilesFromServer = require('./utils/deleteFilesFromServer');
@@ -26,8 +28,9 @@ app.set('view engine', 'hbs');
 app.set('views', path.join(__dirname, 'views'));
 
 // Middlewares
-app.use(express.json()); // body parser
 app.use('/public', express.static(path.join(__dirname, 'public')));
+app.use(contextMiddleware);
+app.use(express.json()); // body parser
 app.use(
   helmet({
     contentSecurityPolicy: {
@@ -38,12 +41,16 @@ app.use(
     },
   }),
 );
-app.use(contextMiddleware);
+
+// Workaround to make sure the asyncLocalStorage "passes through" multer middleware (see https://github.com/expressjs/multer/issues/814)
+function ensureAsyncContext(middleware) {
+  return (req, res, next) => middleware(req, res, AsyncLocalStorage.bind(next));
+}
 
 // Mount routes
 app.get('/', displayForm);
 app.post('/',
-  uploadFiles,
+  ensureAsyncContext(uploadFiles),
   asyncHandler(checkAndSaveData),
 );
 
