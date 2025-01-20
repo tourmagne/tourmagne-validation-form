@@ -5,6 +5,7 @@ let constants;
 switch (process.env.NODE_ENV) {
   case 'production':
     constants = {
+      MIN_DELAY_BETWEEN_SUBMISSIONS: 3600 * 1000, // one hour in ms
       MAX_FILE_SIZE: 15 * 1024 * 1024,
       MAX_GPX_NB: 20,
       MAX_PHOTO_NB: 5,
@@ -22,6 +23,7 @@ switch (process.env.NODE_ENV) {
     break;
   case 'dev':
     constants = {
+      MIN_DELAY_BETWEEN_SUBMISSIONS: 60 * 1000, // one minute in ms
       MAX_FILE_SIZE: 2 * 1024 * 1024,
       MAX_GPX_NB: 3,
       MAX_PHOTO_NB: 2,

@@ -13,6 +13,7 @@ const deleteFilesFromServer = require('../utils/deleteFilesFromServer');
 const filenameAsUTF8 = require('../utils/filenameAsUTF8');
 
 const {
+  MIN_DELAY_BETWEEN_SUBMISSIONS,
   COMPARATOR_OPTIONS: {
     MAX_DETOUR,
     MAX_SEG_LENGTH,
@@ -23,6 +24,7 @@ const {
   },
 } = require('../constants');
 
+const datePlusDurationToStr = require('../utils/datePlusDurationToStr');
 const generateFullGpxStr = require('../utils/generateFullGpxStr');
 const generateHtmlFile = require('../utils/generateHtmlFile');
 
@@ -214,7 +216,39 @@ async function checkAndSaveData(req, res, next) {
   logger('checkAndSaveData controller: get authorization from Google Drive');
   const auth = await gdrive.getAuthorization();
 
-  const submissionFolderName = `Soumission du ${new Date().toISOString()}`;
+  // Check if recent submission occured
+  const now = new Date();
+  const mostRecentSubmissionFolder = await gdrive.getMostRecentFolder({
+    auth,
+    parentFolderId: challengerFolderId,
+  });
+
+  if (mostRecentSubmissionFolder) {
+    const lastSubmissionISOString = mostRecentSubmissionFolder.name.split(' ').at(-1);
+    const lastSubmissionDate = new Date(lastSubmissionISOString);
+
+    if (now.getTime() < lastSubmissionDate.getTime() + MIN_DELAY_BETWEEN_SUBMISSIONS) {
+      logger(`checkAndSaveData controller ERROR: last submission done on ${lastSubmissionISOString} too recent`);
+
+      const {
+        dateStr,
+        timeStr,
+      } = datePlusDurationToStr(lastSubmissionDate, 0, 'fr-FR');
+
+      res.json({
+        success: false,
+        data: {
+          issues: {
+            generic: [`Vous avez déjà soumis vos fichiers le ${dateStr} à ${timeStr}, veuillez patienter au moins une heure avant de les resoumettre`],
+          },
+        },
+      });
+
+      return await deleteFilesFromServer(next);
+    }
+  }
+
+  const submissionFolderName = `Soumission du ${now.toISOString()}`;
   logger(`checkAndSaveData controller: create submission folder in Google Drive named "${submissionFolderName}"`);
   const { id: submissionFolderId } = await gdrive.createFolder({
     auth,
