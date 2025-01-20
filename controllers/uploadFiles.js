@@ -1,5 +1,6 @@
 'use strict';
 
+const fs = require('fs');
 const multer = require('multer');
 const path = require('path');
 
@@ -43,11 +44,23 @@ const fileFilter = (req, file, cb) => {
 };
 
 function uploadFiles(req, res, next) {
-  const { logger } = asyncLocalStorage.getStore();
+  const {
+    logger,
+    requestId,
+  } = asyncLocalStorage.getStore();
+
+  const destinationFolderPath = path.join(__dirname, `../temp/${requestId}`);
+
+  if (!fs.existsSync(destinationFolderPath)) {
+    fs.mkdirSync(destinationFolderPath);
+    logger('Upload controller - Folder created successfully!');
+  } else {
+    logger('Upload controller - Folder already exists.');
+  }
 
   const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-      cb(null, path.join(__dirname, '../temp'));
+      cb(null, destinationFolderPath);
     },
     filename: function (req, file, cb) {
       cb(null, `${new Date().toISOString()} - ${file.originalname}`);
@@ -100,7 +113,7 @@ function uploadFiles(req, res, next) {
       || req.user.issues.photoFiles.length
       || req.user.issues.text.length
     ) {
-      logger('upload controller ERROR: gpx files or photo files error');
+      logger('upload controller ERROR: error in form input (gpx, photos or text)');
 
       res.json({
         success: false,
@@ -109,8 +122,8 @@ function uploadFiles(req, res, next) {
         },
       });
 
-      // Pass logger because under certain circumstances, asyncLocalStorage.getStore() is undefined in deleteFilesFromServer
-      return await deleteFilesFromServer(next, logger);
+      // Pass logger and requestId because under certain circumstances (??), asyncLocalStorage.getStore() is undefined in deleteFilesFromServer
+      return await deleteFilesFromServer(next, { logger, requestId });
     }
 
     // Other errors (not handled here)

@@ -2,7 +2,7 @@
 
 const { AsyncLocalStorage } = require('node:async_hooks');
 
-const { nanoid } = require('nanoid');
+const { customAlphabet } = require('nanoid/non-secure');
 
 const asyncLocalStorage = new AsyncLocalStorage();
 
@@ -21,7 +21,7 @@ function contextMiddleware(req, res, next) {
   };
 
   // Create logger in AsyncLocalStorage
-  const requestId = nanoid(6);
+  const requestId = customAlphabet('abcdefghijklmnopqrstuvwxyz', 8)();
 
   function logger(message) {
     console.log(`${requestId} - ${message}`);
