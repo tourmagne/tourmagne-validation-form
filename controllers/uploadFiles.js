@@ -53,9 +53,9 @@ function uploadFiles(req, res, next) {
 
   if (!fs.existsSync(destinationFolderPath)) {
     fs.mkdirSync(destinationFolderPath);
-    logger('uploadFiles controller - Folder created successfully!');
+    logger('uploadFiles controller - Folder created successfully on server');
   } else {
-    logger('uploadFiles controller - Folder already exists.');
+    logger('uploadFiles controller - Folder already exists on server');
   }
 
   const storage = multer.diskStorage({

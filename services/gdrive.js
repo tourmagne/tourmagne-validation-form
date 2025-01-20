@@ -52,7 +52,7 @@ async function createFolder({ auth, name, parent }) {
 }
 
 /**
- * Lists the names and IDs of up to 10 files.
+ * Lists the names and IDs of up to 100 files.
  * @param {object} params -
  * @param {OAuth2Client} params.auth An authorized OAuth2 client.
  */
@@ -66,6 +66,24 @@ async function listFiles({ auth }) {
   const files = res.data.files;
 
   return files;
+}
+
+/**
+ * Get most recent folder in parent folder
+ * @param {object} params -
+ * @param {OAuth2Client} params.auth An authorized OAuth2 client.
+ */
+async function getMostRecentFolder({ auth, parentFolderId }) {
+  const drive = google.drive({ version: 'v3', auth });
+
+  const folder = await drive.files.list({
+    pageSize: 1,
+    q: `mimeType = 'application/vnd.google-apps.folder' and '${parentFolderId}' in parents`,
+    fields: 'nextPageToken, files(name)',
+    orderBy: 'name desc',
+  });
+
+  return folder.data.files[0];
 }
 
 // Read specific file
@@ -205,6 +223,7 @@ module.exports = {
   deleteAllFiles,
   getAuthorization,
   listFiles,
+  getMostRecentFolder,
   readFile,
   saveFile,
   saveFiles,
