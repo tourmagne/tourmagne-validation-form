@@ -89,14 +89,13 @@ async function readFile({ auth, filename, folderId }) {
   }
 
   const fileId = files[0].id;
-  console.log(`Found file: ${files[0].name} (ID: ${fileId})`);
 
   const file = await drive.files.get(
     { fileId, alt: 'media' },
     { responseType: 'text' },
   );
 
-  return file.data;
+  return file;
 }
 
 /**

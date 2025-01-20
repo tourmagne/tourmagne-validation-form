@@ -3,6 +3,7 @@
 const multer = require('multer');
 const path = require('path');
 
+const { asyncLocalStorage } = require('../middlewares/contextMiddleware');
 const deleteFilesFromServer = require('../utils/deleteFilesFromServer');
 
 const {
@@ -40,18 +41,7 @@ const fileFilter = (req, file, cb) => {
 };
 
 function uploadFiles(req, res, next) {
-  // Store request specific data in request.user
-  req.user = {
-    fieldCounts: {},
-    hasTooManyGpxFiles: false,
-    hasTooManyPhotoFiles: false,
-    issues: {
-      generic: [],
-      gpxFiles: [],
-      photoFiles: [],
-      text: [],
-    },
-  };
+  const { logger } = asyncLocalStorage.getStore();
 
   const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -74,7 +64,7 @@ function uploadFiles(req, res, next) {
   ]);
 
   upload(req, res, async function (err) {
-    console.log('upload controller: started');
+    logger('upload controller: started');
 
     if (req.user.hasTooManyGpxFiles) {
       req.user.issues.gpxFiles.push(`Le nombre de fichiers GPX dépasse le maximum (${MAX_GPX_NB} maximum)`);
@@ -96,7 +86,7 @@ function uploadFiles(req, res, next) {
     }
 
     if (req.user.issues.gpxFiles.length || req.user.issues.photoFiles.length) {
-      console.log('upload controller ERROR: gpx files or photo files error');
+      logger('upload controller ERROR: gpx files or photo files error');
 
       res.json({
         success: false,
@@ -110,11 +100,11 @@ function uploadFiles(req, res, next) {
 
     // Other errors (not handled here)
     if (err) {
-      console.log('upload controller ERROR - Unhandled');
+      logger('upload controller ERROR - Unhandled');
       return next(err);
     }
 
-    console.log('upload controller: finished');
+    logger('upload controller: finished');
     next();
   });
 }

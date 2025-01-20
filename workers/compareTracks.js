@@ -47,9 +47,6 @@ const calculateClosest = (refPoints, challPoints, options) => {
 
   // eslint-disable-next-line no-unused-vars
   return refPoints.map((refPoint, index) => {
-    // const progress = (Math.round((index / refPoints.length) * 10_000) / 100).toFixed(2);
-    // console.log(`    - Progress: ${progress} %`);
-
     // challLocalIndex: running index on challenge track used to find closest point
     let challLocalIndex = challIndex;
     let detour = 0;
@@ -324,26 +321,31 @@ const validateOptions = (options) => {
 
 const compareTracks = (workerData) => {
   const {
-    refPoints,
     challPoints,
+    requestId,
     options,
+    refPoints,
   } = workerData;
+
+  function logger(message) {
+    console.log(`${requestId} - ${message}`);
+  }
 
   validateOptions(options);
 
   // Extend refPoints with missed segments
-  console.log('  - Calculating closest challenger points to each reference points...');
+  logger('  - Calculating closest challenger points to each reference points...');
   const refPointsPassBy = calculateClosest(refPoints, challPoints, options);
-  console.log('  - Calculating closest missed reference points...');
+  logger('  - Calculating closest missed reference points...');
   const refPointsMissed = calculateMissed(refPointsPassBy, options);
 
   // Generate missed segments & accuracy
-  console.log('  - Generating missed segments GPX file and challenger accuracy...');
+  logger('  - Generating missed segments GPX file and challenger accuracy...');
   const missedSegments = generateMissedSegments(refPointsMissed);
   const accuracy = calculateAccuracy(refPoints, missedSegments);
 
   // Tourmagne Kpis
-  console.log('  - Calculating Kpis...');
+  logger('  - Calculating Kpis...');
   const kpi = calculateKpis(refPointsMissed, options);
   const worstPoints = refPoints.slice(
     kpi.slowestSegmentStart.index,

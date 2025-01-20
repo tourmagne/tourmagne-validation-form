@@ -4,6 +4,7 @@ const { Worker } = require('node:worker_threads');
 const fs = require('fs').promises;
 const path = require('path');
 
+const { asyncLocalStorage } = require('../middlewares/contextMiddleware');
 const {
   gdrive,
   mailer,
@@ -37,14 +38,21 @@ async function compare({
 }) {
   const filename = REF_TRACK_FILENAME;
 
-  // Check if reference track available on Google Drive
-  let refGpxString;
+  const {
+    logger,
+    requestId,
+  } = asyncLocalStorage.getStore();
 
-  refGpxString = await gdrive.readFile({
+  // Check if reference track available on Google Drive
+  const file = await gdrive.readFile({
     auth,
     filename,
     folderId: challengerFolderId,
   });
+
+  logger(`Found file: ${file.name} (ID: ${file.id})`);
+
+  const refGpxString = file.data;
 
   const parsedGpx = await runParseGpxWorker({
     filenames: [filename],
@@ -64,9 +72,10 @@ async function compare({
 
   const results = await runCompareTracksWorker(
     {
-      refPoints,
       challPoints,
+      requestId,
       options,
+      refPoints,
     },
   );
 
@@ -128,8 +137,6 @@ function runCompareTracksWorker(workerData) {
 }
 
 async function checkAndSaveData(req, res, next) {
-  console.log('checkAndSaveData controller: started');
-
   const {
     body: {
       challengerFolderId,
@@ -142,6 +149,10 @@ async function checkAndSaveData(req, res, next) {
       gpxFiles,
     },
   } = req;
+
+  const { logger } = asyncLocalStorage.getStore();
+
+  logger('checkAndSaveData controller: started');
 
   if (!challengerFolderId) {
     req.user.issues.generic.push('Missing folder id in query params');
@@ -158,11 +169,11 @@ async function checkAndSaveData(req, res, next) {
 
   // Early return if text is too short or too long
   if (text.length < MIN_TEXT_LENGTH) {
-    console.log('checkAndSaveData controller ERROR: text too short');
+    logger('checkAndSaveData controller ERROR: text too short');
     req.user.issues.text.push(`Tu as vécu une grande aventure, on compte sur toi pour nous en dire un peu plus !`);
   }
   if (text.length > MAX_TEXT_LENGTH) {
-    console.log('checkAndSaveData controller ERROR: text too long');
+    logger('checkAndSaveData controller ERROR: text too long');
     req.user.issues.text.push(`Le text est trop long (${text.length})`);
   }
 
@@ -185,7 +196,7 @@ async function checkAndSaveData(req, res, next) {
   });
   const challGpxStrings = await Promise.all(fileContentPromises);
 
-  console.log('checkAndSaveData controller: before parseGpx worker launch');
+  logger('checkAndSaveData controller: before parseGpx worker launch');
 
   const result = await runParseGpxWorker({
     filenames: gpxFiles.map((file) => file.originalname),
@@ -200,11 +211,11 @@ async function checkAndSaveData(req, res, next) {
     challPoints = result.flat();
   }
 
-  console.log('checkAndSaveData controller: after parseGpx worker finished');
+  logger('checkAndSaveData controller: after parseGpx worker finished');
 
   // Early return if GPX files are not valid
   if (req.user.issues.gpxFiles.length > 0) {
-    console.log('checkAndSaveData controller ERROR: challenger GPX not valid');
+    logger('checkAndSaveData controller ERROR: challenger GPX not valid');
 
     res.json({
       success: false,
@@ -217,10 +228,10 @@ async function checkAndSaveData(req, res, next) {
   }
 
   // Else, save files on Google Drive
-  console.log('checkAndSaveData controller: get authorization from Google Drive');
+  logger('checkAndSaveData controller: get authorization from Google Drive');
   const auth = await gdrive.getAuthorization();
 
-  console.log('checkAndSaveData controller: create submission folder in Google Drive');
+  logger('checkAndSaveData controller: create submission folder in Google Drive');
   const submissionFolderName = `Soumission du ${new Date().toISOString()}`;
   const { id: submissionFolderId } = await gdrive.createFolder({
     auth,
@@ -229,7 +240,7 @@ async function checkAndSaveData(req, res, next) {
   });
 
   // Send email
-  console.log('checkAndSaveData controller: notify by email');
+  logger('checkAndSaveData controller: notify by email');
   await mailer.notify({
     challengerFolderId,
     firstname,
@@ -239,7 +250,7 @@ async function checkAndSaveData(req, res, next) {
   });
 
   // Save text file on Google Drive
-  console.log('checkAndSaveData controller: save text file in Google Drive');
+  logger('checkAndSaveData controller: save text file in Google Drive');
   await gdrive.saveFile({
     auth,
     buffer: text,
@@ -249,7 +260,7 @@ async function checkAndSaveData(req, res, next) {
   });
 
   // Save photos on Google Drive
-  console.log('checkAndSaveData controller: save photo files in Google Drive');
+  logger('checkAndSaveData controller: save photo files in Google Drive');
   await gdrive.saveFiles({
     auth,
     files: photoFiles,
@@ -257,14 +268,14 @@ async function checkAndSaveData(req, res, next) {
   });
 
   // Save GPX files on Google Drive
-  console.log('checkAndSaveData controller: create gpx folder in Google Drive');
+  logger('checkAndSaveData controller: create gpx folder in Google Drive');
   const { id: gpxFolderId } = await gdrive.createFolder({
     auth,
     name: 'challengerGpx',
     parent: submissionFolderId,
   });
 
-  console.log('checkAndSaveData controller: save gpx files in Google Drive');
+  logger('checkAndSaveData controller: save gpx files in Google Drive');
   await gdrive.saveFiles({
     auth,
     files: gpxFiles,
@@ -274,7 +285,7 @@ async function checkAndSaveData(req, res, next) {
   const gpxFilelist = gpxFiles.map((file) => filenameAsUTF8(file.originalname));
   const photoFilelist = photoFiles.map((file) => filenameAsUTF8(file.originalname));
 
-  console.log('checkAndSaveData controller: send response to browser');
+  logger('checkAndSaveData controller: send response to browser');
   res.json({
     success: true,
     data: {
@@ -285,11 +296,11 @@ async function checkAndSaveData(req, res, next) {
   });
 
   // Delete gpx & photo files from server
-  console.log('checkAndSaveData controller: start deleting files from server');
+  logger('checkAndSaveData controller: start deleting files from server');
   await deleteFilesFromServer(next);
 
   // Compare tracks
-  console.log('checkAndSaveData controller: before compareTracks worker launch');
+  logger('checkAndSaveData controller: before compareTracks worker launch');
   try {
     await compare({
       auth,
@@ -300,8 +311,8 @@ async function checkAndSaveData(req, res, next) {
       submissionFolderId,
     });
   } catch (error) {
-    console.log(`checkAndSaveData controller ERROR during comparison: ${error.message}`);
-    console.log('checkAndSaveData controller: writing error file on Google Drive');
+    logger(`checkAndSaveData controller ERROR during comparison: ${error.message}`);
+    logger('checkAndSaveData controller: writing error file on Google Drive');
 
     await gdrive.saveFile({
       auth,
@@ -312,7 +323,7 @@ async function checkAndSaveData(req, res, next) {
     });
   }
 
-  console.log('checkAndSaveData controller: after compareTracks worker finished');
+  logger('checkAndSaveData controller: request ENDED');
 };
 
 module.exports = checkAndSaveData;

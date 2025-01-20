@@ -7,6 +7,8 @@ const path = require('path');
 
 const checkAndSaveData = require('./controllers/checkAndSaveData');
 const displayForm = require('./controllers/displayForm');
+
+const { contextMiddleware } = require('./middlewares/contextMiddleware');
 const uploadFiles = require('./controllers/uploadFiles');
 
 const asyncHandler = require('./utils/ayncHandler');
@@ -36,6 +38,7 @@ app.use(
     },
   }),
 );
+app.use(contextMiddleware);
 
 // Mount routes
 app.get('/', displayForm);

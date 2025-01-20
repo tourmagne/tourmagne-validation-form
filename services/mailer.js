@@ -2,6 +2,8 @@
 
 const nodemailer = require('nodemailer');
 
+const { asyncLocalStorage } = require('../middlewares/contextMiddleware');
+
 const {
   GMAIL_APP_EMAIL,
   GMAIL_APP_PASSWORD,
@@ -54,6 +56,8 @@ async function notify(params) {
     emailContent,
   } = buildContent(params);
 
+  const { logger } = asyncLocalStorage.getStore();
+
   const info = await transporter.sendMail({
     from: '"Tourmagne Administration" <cedriclouyottest@gmail.com>',
     to: MAIL_TO,
@@ -62,7 +66,7 @@ async function notify(params) {
     text: emailContent,
   });
 
-  console.log('Email sent: %s', info.messageId);
+  logger(`Email sent: ${info.messageId}`);
 }
 
 module.exports = {
