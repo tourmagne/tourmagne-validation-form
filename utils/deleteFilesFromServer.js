@@ -7,9 +7,10 @@ const { asyncLocalStorage } = require('../middlewares/contextMiddleware');
 
 const folderPath = path.join(__dirname, '../temp');
 
-async function deleteFilesFromServer(next) {
+async function deleteFilesFromServer(next, logger) {
   try {
-    const { logger } = asyncLocalStorage.getStore();
+    const store = asyncLocalStorage.getStore();
+    const finalLogger = store ? store.logger : logger;
 
     const files = await fs.readdir(folderPath);
 
@@ -22,7 +23,7 @@ async function deleteFilesFromServer(next) {
 
     await Promise.all(deletePromises);
 
-    logger(`All files deleted from ${folderPath}`);
+    finalLogger(`All files deleted from ${folderPath}`);
   } catch (err) {
     next(err);
   }

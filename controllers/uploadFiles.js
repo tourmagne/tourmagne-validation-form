@@ -10,6 +10,8 @@ const {
   MAX_FILE_SIZE,
   MAX_GPX_NB,
   MAX_PHOTO_NB,
+  MAX_TEXT_LENGTH,
+  MIN_TEXT_LENGTH,
 } = require('../constants');
 
 const LIMIT_FILE_SIZE = 'LIMIT_FILE_SIZE';
@@ -66,6 +68,15 @@ function uploadFiles(req, res, next) {
   upload(req, res, async function (err) {
     logger('upload controller: started');
 
+    if (req.body.text.length < MIN_TEXT_LENGTH) {
+      logger('checkAndSaveData controller ERROR: text too short');
+      req.user.issues.text.push(`Tu as vécu une grande aventure, on compte sur toi pour nous en dire un peu plus !`);
+    }
+    if (req.body.text.length > MAX_TEXT_LENGTH) {
+      logger('checkAndSaveData controller ERROR: text too long');
+      req.user.issues.text.push(`Le text est trop long (maximum : ${MAX_TEXT_LENGTH} caractères)`);
+    }
+
     if (req.user.hasTooManyGpxFiles) {
       req.user.issues.gpxFiles.push(`Le nombre de fichiers GPX dépasse le maximum (${MAX_GPX_NB} maximum)`);
     }
@@ -85,7 +96,10 @@ function uploadFiles(req, res, next) {
       }
     }
 
-    if (req.user.issues.gpxFiles.length || req.user.issues.photoFiles.length) {
+    if (req.user.issues.gpxFiles.length
+      || req.user.issues.photoFiles.length
+      || req.user.issues.text.length
+    ) {
       logger('upload controller ERROR: gpx files or photo files error');
 
       res.json({
@@ -95,7 +109,8 @@ function uploadFiles(req, res, next) {
         },
       });
 
-      return await deleteFilesFromServer(next);
+      // Pass logger because under certain circumstances, asyncLocalStorage.getStore() is undefined in deleteFilesFromServer
+      return await deleteFilesFromServer(next, logger);
     }
 
     // Other errors (not handled here)

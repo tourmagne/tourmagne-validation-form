@@ -21,8 +21,6 @@ const {
     TOLERANCE,
     TRIGGER,
   },
-  MAX_TEXT_LENGTH,
-  MIN_TEXT_LENGTH,
 } = require('../constants');
 
 const generateFullGpxStr = require('../utils/generateFullGpxStr');
@@ -163,27 +161,6 @@ async function checkAndSaveData(req, res, next) {
   if (!challengerFolderId) {
     req.user.issues.generic.push('Missing folder id in query params');
 
-    res.json({
-      success: false,
-      data: {
-        issues: req.user.issues,
-      },
-    });
-
-    return await deleteFilesFromServer(next);
-  }
-
-  // Early return if text is too short or too long
-  if (text.length < MIN_TEXT_LENGTH) {
-    logger('checkAndSaveData controller ERROR: text too short');
-    req.user.issues.text.push(`Tu as vécu une grande aventure, on compte sur toi pour nous en dire un peu plus !`);
-  }
-  if (text.length > MAX_TEXT_LENGTH) {
-    logger('checkAndSaveData controller ERROR: text too long');
-    req.user.issues.text.push(`Le text est trop long (${text.length})`);
-  }
-
-  if (req.user.issues.text.length > 0) {
     res.json({
       success: false,
       data: {
