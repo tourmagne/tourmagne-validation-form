@@ -79,13 +79,21 @@ function uploadFiles(req, res, next) {
   ]);
 
   upload(req, res, async function (err) {
-    logger('upload controller: started');
+    const {
+      body: {
+        firstname,
+        lastname,
+        text,
+      } = {},
+    } = req;
 
-    if (req.body.text.length < MIN_TEXT_LENGTH) {
+    logger(`upload controller: started for ${firstname} ${lastname}`);
+
+    if (text.length < MIN_TEXT_LENGTH) {
       logger('checkAndSaveData controller ERROR: text too short');
       req.user.issues.text.push(`Tu as vécu une grande aventure, on compte sur toi pour nous en dire un peu plus !`);
     }
-    if (req.body.text.length > MAX_TEXT_LENGTH) {
+    if (text.length > MAX_TEXT_LENGTH) {
       logger('checkAndSaveData controller ERROR: text too long');
       req.user.issues.text.push(`Le text est trop long (maximum : ${MAX_TEXT_LENGTH} caractères)`);
     }

@@ -214,8 +214,8 @@ async function checkAndSaveData(req, res, next) {
   logger('checkAndSaveData controller: get authorization from Google Drive');
   const auth = await gdrive.getAuthorization();
 
-  logger('checkAndSaveData controller: create submission folder in Google Drive');
   const submissionFolderName = `Soumission du ${new Date().toISOString()}`;
+  logger(`checkAndSaveData controller: create submission folder in Google Drive named "${submissionFolderName}"`);
   const { id: submissionFolderId } = await gdrive.createFolder({
     auth,
     name: submissionFolderName,
