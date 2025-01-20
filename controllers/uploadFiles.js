@@ -53,9 +53,9 @@ function uploadFiles(req, res, next) {
 
   if (!fs.existsSync(destinationFolderPath)) {
     fs.mkdirSync(destinationFolderPath);
-    logger('Upload controller - Folder created successfully!');
+    logger('uploadFiles controller - Folder created successfully!');
   } else {
-    logger('Upload controller - Folder already exists.');
+    logger('uploadFiles controller - Folder already exists.');
   }
 
   const storage = multer.diskStorage({
@@ -79,14 +79,22 @@ function uploadFiles(req, res, next) {
   ]);
 
   upload(req, res, async function (err) {
-    logger('upload controller: started');
+    const {
+      body: {
+        firstname,
+        lastname,
+        text,
+      } = {},
+    } = req;
 
-    if (req.body.text.length < MIN_TEXT_LENGTH) {
-      logger('checkAndSaveData controller ERROR: text too short');
+    logger(`uploadFiles controller: started for ${firstname} ${lastname}`);
+
+    if (text.length < MIN_TEXT_LENGTH) {
+      logger('uploadFiles controller ERROR: text too short');
       req.user.issues.text.push(`Tu as vécu une grande aventure, on compte sur toi pour nous en dire un peu plus !`);
     }
-    if (req.body.text.length > MAX_TEXT_LENGTH) {
-      logger('checkAndSaveData controller ERROR: text too long');
+    if (text.length > MAX_TEXT_LENGTH) {
+      logger('uploadFiles controller ERROR: text too long');
       req.user.issues.text.push(`Le text est trop long (maximum : ${MAX_TEXT_LENGTH} caractères)`);
     }
 
@@ -113,7 +121,7 @@ function uploadFiles(req, res, next) {
       || req.user.issues.photoFiles.length
       || req.user.issues.text.length
     ) {
-      logger('upload controller ERROR: error in form input (gpx, photos or text)');
+      logger('uploadFiles controller ERROR: error in form input (gpx, photos or text)');
 
       res.json({
         success: false,
@@ -128,11 +136,11 @@ function uploadFiles(req, res, next) {
 
     // Other errors (not handled here)
     if (err) {
-      logger('upload controller ERROR - Unhandled');
+      logger('uploadFiles controller ERROR - Unhandled');
       return next(err);
     }
 
-    logger('upload controller: finished');
+    logger('uploadFiles controller: finished');
     next();
   });
 }
