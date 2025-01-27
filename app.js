@@ -11,7 +11,10 @@ const checkAndSaveData = require('./controllers/checkAndSaveData');
 const displayForm = require('./controllers/displayForm');
 const uploadFiles = require('./controllers/uploadFiles');
 
-const { contextMiddleware } = require('./middlewares/contextMiddleware');
+const {
+  asyncLocalStorage,
+  contextMiddleware,
+} = require('./middlewares/contextMiddleware');
 
 const asyncHandler = require('./utils/ayncHandler');
 const deleteFilesFromServer = require('./utils/deleteFilesFromServer');
@@ -56,6 +59,10 @@ app.post('/',
 
 // Error handler
 app.use(async (err, req, res, next) => {
+  const { logger } = asyncLocalStorage.getStore();
+
+  logger(`Error handler: ${err.message}`);
+
   await deleteFilesFromServer(next);
 
   if (res.headersSent) {

@@ -116,6 +116,16 @@ async function readFile({ auth, filename, folderId }) {
   return file;
 }
 
+// Check folder existence
+async function checkFolderExistence({ auth, folderId }) {
+  const drive = google.drive({ version: 'v3', auth });
+
+  await drive.files.get({
+    fileId: folderId,
+    fields: 'id, name',
+  });
+}
+
 /**
  * Create a new file on google drive.
  * @param {object} params -
@@ -219,6 +229,7 @@ async function deleteAllFiles({ auth }) {
 }
 
 module.exports = {
+  checkFolderExistence,
   createFolder,
   deleteAllFiles,
   getAuthorization,

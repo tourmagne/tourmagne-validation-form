@@ -172,7 +172,6 @@ async function checkAndSaveData(req, res, next) {
 
     return await deleteFilesFromServer(next);
   }
-
   // Check GPX files validity
   const fileContentPromises = gpxFiles.map(async (file) => {
     const fileContent = await fs.readFile(file.path, 'utf-8');
@@ -215,6 +214,24 @@ async function checkAndSaveData(req, res, next) {
   // Else, save files on Google Drive
   logger('checkAndSaveData controller: get authorization from Google Drive');
   const auth = await gdrive.getAuthorization();
+
+  // Check challengerFolderId existence
+  try {
+    await gdrive.checkFolderExistence({ auth, folderId: challengerFolderId });
+  } catch (error) {
+    logger(`checkAndSaveData controller: ERROR with challengerFolderId ${challengerFolderId} - ${error.message}`);
+
+    res.json({
+      success: false,
+      data: {
+        issues: {
+          generic: [`L'id ${challengerFolderId} est incorrect`],
+        },
+      },
+    });
+
+    return await deleteFilesFromServer(next);
+  }
 
   // Check if recent submission occured
   const now = new Date();
