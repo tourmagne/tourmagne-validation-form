@@ -1,4 +1,5 @@
 {
   "language": "en",
-  "siteTitle": "Challenge du Tourmagne - Validation form"
+  "siteTitle": "Challenge du Tourmagne - Validation form",
+  "textTooShort": "Long adventure, say more!"
 }

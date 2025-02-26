@@ -7,6 +7,7 @@ document.getElementById('form').addEventListener('submit', submitForm);
 async function submitForm(event) {
   event.preventDefault();
 
+  const language = document.documentElement.getAttribute('lang');
   const genericIssuesEl = document.getElementById('genericIssues');
   const gpxIssuesEl = document.getElementById('gpxIssues');
   const gpxFilesInputEl = document.getElementById('gpxFilesInput');
@@ -44,7 +45,7 @@ async function submitForm(event) {
   try {
     console.log(`Request will be sent with Google Drive folder id: ${challengerFolderId}`);
     // POST the form data to check and maybe upload data
-    const response = await fetch('/', {
+    const response = await fetch(`/?language=${language}`, {
       method: 'POST',
       body: formData,
     });

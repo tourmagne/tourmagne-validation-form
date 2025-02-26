@@ -91,7 +91,7 @@ function uploadFiles(req, res, next) {
 
     if (text.length < MIN_TEXT_LENGTH) {
       logger('uploadFiles controller ERROR: text too short');
-      req.user.issues.text.push(`Tu as vécu une grande aventure, on compte sur toi pour nous en dire un peu plus !`);
+      req.user.issues.text.push(res.__('textTooShort'));
     }
     if (text.length > MAX_TEXT_LENGTH) {
       logger('uploadFiles controller ERROR: text too long');
