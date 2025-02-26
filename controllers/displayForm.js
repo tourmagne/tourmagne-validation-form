@@ -1,6 +1,7 @@
 'use strict';
 
 const {
+  LANGUAGES,
   MAX_FILE_SIZE,
   MAX_GPX_NB,
   MAX_PHOTO_NB,
@@ -11,9 +12,16 @@ function displayForm(req, res) {
     query: {
       firstname,
       id: challengerFolderId,
+      language = LANGUAGES[0],
       lastname,
     },
   } = req;
+
+  if (!LANGUAGES.includes(language)) {
+    return res.render(`unknownLanguage`, { language });
+  }
+
+  req.setLocale(language);
 
   const locals = {
     challengerFolderId,
@@ -24,7 +32,7 @@ function displayForm(req, res) {
     maxPhotoNb: MAX_PHOTO_NB,
   };
 
-  res.render('form', locals);
+  res.render(`${language}/form`, locals);
 }
 
 module.exports = displayForm;

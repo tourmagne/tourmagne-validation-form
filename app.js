@@ -5,8 +5,10 @@ const { AsyncLocalStorage } = require('node:async_hooks');
 const express = require('express');
 const exphbs = require('express-handlebars');
 const helmet = require('helmet');
+const i18n = require('i18n');
 const path = require('path');
 
+const { LANGUAGES } = require('./constants');
 const checkAndSaveData = require('./controllers/checkAndSaveData');
 const displayForm = require('./controllers/displayForm');
 const uploadFiles = require('./controllers/uploadFiles');
@@ -21,9 +23,23 @@ const deleteFilesFromServer = require('./utils/deleteFilesFromServer');
 
 const app = express();
 
+// Configure i18n
+i18n.configure({
+  locales: LANGUAGES,
+  directory: __dirname + '/locales',
+});
+
+app.use(i18n.init);
+
+// Configure handlebars
 app.engine('hbs', exphbs.engine({
   extname: 'hbs',
   defaultLayout: 'main',
+  helpers: {
+    __: function () {
+      return i18n.__.apply(this, arguments);
+    },
+  },
   layoutsDir: path.join(__dirname, 'views', 'layouts'),
 }));
 
