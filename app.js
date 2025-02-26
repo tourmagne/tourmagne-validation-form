@@ -29,8 +29,6 @@ i18n.configure({
   directory: __dirname + '/locales',
 });
 
-app.use(i18n.init);
-
 // Configure handlebars
 app.engine('hbs', exphbs.engine({
   extname: 'hbs',
@@ -44,9 +42,23 @@ app.engine('hbs', exphbs.engine({
 }));
 
 app.set('view engine', 'hbs');
-app.set('views', path.join(__dirname, 'views'));
 
 // Middlewares
+app.use(i18n.init);
+app.use((req, res, next) => {
+  let {
+    query: {
+      language,
+    },
+  } = req;
+
+  if (!LANGUAGES.includes(language)) {
+    language = LANGUAGES[0];
+  }
+
+  res.setLocale(language);
+  next();
+});
 app.use('/public', express.static(path.join(__dirname, 'public')));
 app.use(contextMiddleware);
 app.use(express.json()); // body parser
