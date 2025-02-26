@@ -1,0 +1,50 @@
+<main class='container'>
+  <h1 class='text-center my-3'>{{firstname}} {{lastname}}, sende uns deine Tracks und Erinnerungen von der Tourmagne Challenge!</h1>
+  <section>
+    <h2 class='text-center'>Validierungsformular für die Tourmagne Challenge</h2>
+    <form id='form' method='POST' enctype='multipart/form-data'>
+      <section class='light'>
+        <div class='form-group'>
+          <label for='text'>Erzähle uns deine beeindruckendste Erinnerung</label>
+          <textarea id='textInput' name='text' rows='10' class='form-control' required></textarea>
+          <small>Pflichtfeld</small>
+          <p id='textIssues' class='text-danger'></p>
+        </div>
+        <div class='form-group'>
+          <label for='gpxFilesInput'>Sende uns deine GPX-Tracks, damit wir deine Challenge validieren können</label>
+          <input id='gpxFilesInput' name='gpxFiles' type='file' class='form-control' accept='.gpx' multiple required />
+          <small>Pflichtfeld - Maximal {{maxGpxNb}} GPX-Dateien von je {{maxFileSizeMo}} MB<br>
+          Die GPX-Dateien müssen Zeitdaten enthalten (Zeitpunkt des Passierens jedes GPS-Punktes)<br>
+          Die GPX-Dateien dürfen sich zeitlich nicht überschneiden</small>
+          <p id='gpxIssues' class='text-danger'></p>
+        </div>
+        <div class='form-group'>
+          <label for='photoFilesInput'>Sende uns einige Fotos von deinem Abenteuer für die <a href='https://tourmagne.bike/tableau-dhonneur-et-recits/' target='_blanck'>Ehrentafel</a></label>
+          <input id='photoFilesInput' name='photoFiles' type='file' class='form-control' accept='image/*' multiple />
+          <small>Optionales Feld - Maximal {{maxPhotoNb}} Fotos von je {{maxFileSizeMo}} MB</small>
+          <p id='photoIssues' class='text-danger'></p>
+        </div>
+        <input id='challengerFolderId' name='challengerFolderId' type='hidden' value='{{challengerFolderId}}'>
+        <input id='firstname' name='firstname' type='hidden' value='{{firstname}}'>
+        <input id='lastname' name='lastname' type='hidden' value='{{lastname}}'>
+      </section>
+      <button id='submitButton' type='submit' class='btn btn-primary'>Daten absenden</button>
+      <p id='genericIssues' class='text-danger light my-2'></p>
+    </form>
+  </section>
+  <div id='message' class='bg-warning rounded text-white text-center p-2 fs-2 m-4 d-none'></div>
+  <section id='results' class='d-none'>
+    <h2>Alle Ihre Dateien wurden erfolgreich übermittelt, Sie können dieses Fenster schließen!</h2>
+    <section class='light'>
+      <p><strong>Bitte senden Sie keine weiteren Dateien, wir werden sie verarbeiten und Ihnen innerhalb einer Woche per E-Mail antworten.</strong></p>
+      <br>
+      <p>Zusammenfassung der eingereichten Daten:</p>
+      <ul class='light'>
+        <li id='successGpx'></li>
+        <li id='successPhotos'></li>
+        <li>Text: <br><i id='successText'></i></li>
+      </ul>
+    </section>
+  </section>
+</main>
+<script src='public/index.js'></script>

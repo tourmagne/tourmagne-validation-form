@@ -1,0 +1,50 @@
+<main class='container'>
+  <h1 class='text-center my-3'>{{firstname}} {{lastname}}, send us your tracks and memories from the Tourmagne Challenge!</h1>
+  <section>
+    <h2 class='text-center'>Tourmagne Challenge Validation Form</h2>
+    <form id='form' method='POST' enctype='multipart/form-data'>
+      <section class='light'>
+        <div class='form-group'>
+          <label for='text'>Share your most memorable moment</label>
+          <textarea id='textInput' name='text' rows='10' class='form-control' required></textarea>
+          <small>Required field</small>
+          <p id='textIssues' class='text-danger'></p>
+        </div>
+        <div class='form-group'>
+          <label for='gpxFilesInput'>Send us your GPX tracks so we can validate your challenge</label>
+          <input id='gpxFilesInput' name='gpxFiles' type='file' class='form-control' accept='.gpx' multiple required />
+          <small>Required field - Maximum {{maxGpxNb}} GPX files of {{maxFileSizeMo}} MB each<br>
+          GPX files must contain time data (time of passage at each GPS point)<br>
+          GPX files must not overlap in time</small>
+          <p id='gpxIssues' class='text-danger'></p>
+        </div>
+        <div class='form-group'>
+          <label for='photoFilesInput'>Send us some photos of your adventure for the <a href='https://tourmagne.bike/tableau-dhonneur-et-recits/' target='_blanck'>honor board</a></label>
+          <input id='photoFilesInput' name='photoFiles' type='file' class='form-control' accept='image/*' multiple />
+          <small>Optional field - Maximum {{maxPhotoNb}} photos of {{maxFileSizeMo}} MB each</small>
+          <p id='photoIssues' class='text-danger'></p>
+        </div>
+        <input id='challengerFolderId' name='challengerFolderId' type='hidden' value='{{challengerFolderId}}'>
+        <input id='firstname' name='firstname' type='hidden' value='{{firstname}}'>
+        <input id='lastname' name='lastname' type='hidden' value='{{lastname}}'>
+      </section>
+      <button id='submitButton' type='submit' class='btn btn-primary'>Submit my data</button>
+      <p id='genericIssues' class='text-danger light my-2'></p>
+    </form>
+  </section>
+  <div id='message' class='bg-warning rounded text-white text-center p-2 fs-2 m-4 d-none'></div>
+  <section id='results' class='d-none'>
+    <h2>All your files have been successfully submitted, you can close this window!</h2>
+    <section class='light'>
+      <p><strong>Do not submit any more files, we will process them and get back to you by email within a week.</strong></p>
+      <br>
+      <p>Summary of submitted data:</p>
+      <ul class='light'>
+        <li id='successGpx'></li>
+        <li id='successPhotos'></li>
+        <li>Text: <br><i id='successText'></i></li>
+      </ul>
+    </section>
+  </section>
+</main>
+<script src='public/index.js'></script>
