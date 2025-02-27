@@ -15,7 +15,7 @@ const sortFiles = (trkptsArr) => {
     const endTimeOfCurrentFile = new Date(trkptsArr[fileNb].flat().slice(-1)[0].time.valueOf());
     const startTimeOfNextFile = new Date(trkptsArr[fileNb + 1][0][0].time.valueOf());
     if (endTimeOfCurrentFile > startTimeOfNextFile) {
-      throw new ParsingError('Tes fichiers GPX ne sont pas conformes car au moins 2 d\'entre eux se chevauchent temporellement (ils contiennent des données pour le même horaire)');
+      throw new ParsingError('overlapingGpxError');
     }
   }
 };
@@ -71,13 +71,13 @@ const parseGpx = (workerData) => {
   });
 
   if (invalidFiles.length > 0) {
-    throw new ParsingError(`Le ou les fichiers suivants ne sont pas des fichiers GPX valides :\n - ${invalidFiles.join('\n - ')}`);
+    throw new ParsingError('invalidGpxError {{invalidFiles}}', { invalidFiles: invalidFiles.join('\n - ') });
   }
 
   // For challenger tracks, check if they have timestamps
   if (challengerGpx) {
     if (trkptsArr.some((trkptsFile) => typeof trkptsFile[0][0].time === 'undefined')) {
-      throw new ParsingError('Tes fichiers GPX ne sont pas conformes car au moins l\'un d\'eux ne contient pas de données temporelles (heure de passage à chaque point GPS)');
+      throw new ParsingError('missingGpxTimestampsError');
     }
   }
 
@@ -106,7 +106,12 @@ try {
   parentPort.postMessage(result);
 } catch (error) {
   if (error instanceof ParsingError && workerData.options?.challengerGpx) {
-    parentPort.postMessage({ error });
+    parentPort.postMessage({
+      error: {
+        message: error.message,
+        data: error.data,
+      },
+    });
   } else {
     throw error;
   }

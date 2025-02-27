@@ -190,7 +190,7 @@ async function checkAndSaveData(req, res, next) {
 
   let challPoints;
   if (result.error) {
-    req.user.issues.gpxFiles.push(result.error.message);
+    req.user.issues.gpxFiles.push(res.__(result.error.message, result.error.data));
   } else {
     challPoints = result.flat();
   }

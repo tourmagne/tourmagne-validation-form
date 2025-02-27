@@ -1,4 +1,13 @@
 {
-  "language": "de",
-  "siteTitle": "Challenge du Tourmagne - Validierungsformular"
+	"invalidGpxError {{invalidFiles}}": "Die folgende(n) Datei(en) sind keine gültigen GPX-Dateien:\n - {{invalidFiles}}",
+	"language": "de",
+	"missingGpxTimestampsError": "Ihre GPX-Dateien sind nicht konform, da mindestens eine von ihnen keine Zeitstempeldaten enthält (Zeitpunkt des Passierens jedes GPS-Punktes)",
+	"overlapingGpxError": "Ihre GPX-Dateien sind nicht konform, da sich mindestens zwei von ihnen zeitlich überschneiden (sie enthalten Daten für denselben Zeitpunkt)",
+	"siteTitle": "Challenge du Tourmagne - Validierungsformular",
+	"tooBigGpx {{maxSize}}": "Einige GPX-Dateien sind zu groß (max: {{maxSize}} MB)",
+	"tooBigPhotos {{maxSize}}": "Einige Fotos sind zu groß (max: {{maxSize}} MB)",
+	"tooManyGpx {{maxNb}}": "Die Anzahl der GPX-Dateien überschreitet das Maximum ({{maxNb}} maximal)",
+	"tooManyPhotos {{maxNb}}": "Die Anzahl der Fotos überschreitet das Maximum ({{maxNb}} maximal)",
+	"textTooLong {{maxLength}}": "Der Text ist zu lang (maximal: {{maxLength}} Zeichen)",
+	"textTooShort": "Du hattest ein großes Abenteuer, wir verlassen uns darauf, dass du uns mehr darüber erzählst!"
 }

@@ -95,25 +95,25 @@ function uploadFiles(req, res, next) {
     }
     if (text.length > MAX_TEXT_LENGTH) {
       logger('uploadFiles controller ERROR: text too long');
-      req.user.issues.text.push(`Le text est trop long (maximum : ${MAX_TEXT_LENGTH} caractères)`);
+      req.user.issues.text.push(res.__('textTooLong {{maxLength}}', { maxLength: MAX_TEXT_LENGTH }));
     }
 
     if (req.user.hasTooManyGpxFiles) {
-      req.user.issues.gpxFiles.push(`Le nombre de fichiers GPX dépasse le maximum (${MAX_GPX_NB} maximum)`);
+      req.user.issues.gpxFiles.push(res.__('tooManyGpx {{maxNb}}', { maxNb: MAX_GPX_NB }));
     }
 
     if (req.user.hasTooManyPhotoFiles) {
-      req.user.issues.photoFiles.push(`Le nombre de photos dépasse le maximum (${MAX_PHOTO_NB} maximum)`);
+      req.user.issues.photoFiles.push(res.__('tooManyPhotos {{maxNb}}', { maxNb: MAX_PHOTO_NB }));
     }
 
     // Handled errors
     if (err && err instanceof multer.MulterError && err.code === LIMIT_FILE_SIZE) {
       if (err.field === 'gpxFiles') {
-        req.user.issues.gpxFiles.push(`Certains fichiers GPX sont trop volumineux (max: ${MAX_FILE_SIZE / (1024 * 1024)} Mo)`);
+        req.user.issues.gpxFiles.push(res.__('tooBigGpx {{maxSize}}', { maxSize: MAX_FILE_SIZE / (1024 * 1024) }));
       }
 
       if (err.field === 'photoFiles') {
-        req.user.issues.photoFiles.push(`Certaines photos sont trop volumineuses (max: ${MAX_FILE_SIZE / (1024 * 1024)} Mo)`);
+        req.user.issues.photoFiles.push(res.__('tooBigPhotos {{maxSize}}', { maxSize: MAX_FILE_SIZE / (1024 * 1024) }));
       }
     }
 
