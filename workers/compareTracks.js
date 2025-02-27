@@ -315,7 +315,7 @@ const validateOptions = (options) => {
   } = options;
 
   if (tolerance < trigger) {
-    throw new Error('La tolérance d\'écart doit être supérieure ou égale au seuil de déclenchement.');
+    throw new Error('tolerance must be >= trigger');
   }
 };
 
