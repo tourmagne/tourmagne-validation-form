@@ -35,7 +35,7 @@ async function compare({
   firstname,
   lastname,
   submissionFolderId,
-}) {
+}, language) {
   const filename = REF_TRACK_FILENAME;
 
   const {
@@ -99,7 +99,7 @@ async function compare({
     firstname,
     lastname,
     results,
-  });
+  }, language);
 
   // Write result html file to Google Drive
   logger('Compare - Start saving HTML file on Drive');
@@ -155,6 +155,8 @@ async function checkAndSaveData(req, res, next) {
       gpxFiles,
     },
   } = req;
+
+  const language = res.getLocale();
 
   const { logger } = asyncLocalStorage.getStore();
 
@@ -250,13 +252,17 @@ async function checkAndSaveData(req, res, next) {
       const {
         dateStr,
         timeStr,
-      } = datePlusDurationToStr(lastSubmissionDate, 0, 'fr-FR');
+      } = datePlusDurationToStr(lastSubmissionDate, 0, language);
 
       res.json({
         success: false,
         data: {
           issues: {
-            generic: [`Vous avez déjà soumis vos fichiers le ${dateStr} à ${timeStr}, veuillez patienter au moins une heure avant de les resoumettre`],
+            generic: [res.__('recentSubmissionError {{dateStr}} {{timeStr}} {{minDelay}}', {
+              dateStr,
+              minDelay: MIN_DELAY_BETWEEN_SUBMISSIONS / 60_000,
+              timeStr,
+            })],
           },
         },
       });
@@ -343,7 +349,7 @@ async function checkAndSaveData(req, res, next) {
       firstname,
       lastname,
       submissionFolderId,
-    });
+    }, language);
   } catch (error) {
     logger(`checkAndSaveData controller ERROR during comparison: ${error.message}`);
     logger('checkAndSaveData controller: writing error file on Google Drive');

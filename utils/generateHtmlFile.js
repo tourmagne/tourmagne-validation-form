@@ -12,7 +12,7 @@ function trackToCoordinates(track) {
   return JSON.stringify(coordinates);
 }
 
-function generateHtmlFile({ firstname, lastname, results }) {
+function generateHtmlFile({ firstname, lastname, results }, language) {
   const {
     accuracy: {
       missedDistance,
@@ -40,11 +40,11 @@ function generateHtmlFile({ firstname, lastname, results }) {
   } = datePlusDurationToStr(
     new Date(chall[0][0].time),
     elapsedTime,
-    'fr-FR',
+    language,
   );
 
   const source = fs.readFileSync(
-    path.join(__dirname, 'htmlSynthesisTemplate.hbs'),
+    path.join(__dirname, '..', 'views', language, 'htmlSynthesisTemplate.hbs'),
     'utf8',
   );
 

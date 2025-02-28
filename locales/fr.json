@@ -3,6 +3,7 @@
 	"language": "fr",
 	"missingGpxTimestampsError": "Tes fichiers GPX ne sont pas conformes car au moins l'un d'eux ne contient pas de données temporelles (heure de passage à chaque point GPS)",
 	"overlapingGpxError": "Tes fichiers GPX ne sont pas conformes car au moins 2 d'entre eux se chevauchent temporellement (ils contiennent des données pour le même horaire)",
+  "recentSubmissionError {{dateStr}} {{timeStr}} {{minDelay}}": "Vous avez déjà soumis vos fichiers le {{dateStr}} à {{timeStr}}, veuillez patienter au moins {{minDelay}} minutes avant de les resoumettre",
 	"siteTitle": "Challenge du Tourmagne - Formulaire de validation",
 	"tooBigGpx {{maxSize}}": "Certains fichiers GPX sont trop volumineux (max: {{maxSize}} Mo)",
 	"tooBigPhotos {{maxSize}}": "Certaines photos sont trop volumineuses (max: {{maxSize}} Mo)",
