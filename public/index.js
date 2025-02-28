@@ -4,6 +4,24 @@
 
 document.getElementById('form').addEventListener('submit', submitForm);
 
+const translationsMapping = {
+  fr: {
+    analysisInProgress: 'Analyse des fichiers en cours. Ne fermez pas cette fenêtre, cette analyse peut durer quelques minutes si vos fichiers sont volumineux',
+    photos: 'Photos',
+    gpxFiles: 'Fichiers GPX',
+  },
+  en: {
+    analysisInProgress: 'File analysis in progress. Do not close this window, as the analysis may take a few minutes if your files are large',
+    photos: 'Photos',
+    gpxFiles: 'GPX Files',
+  },
+  de: {
+    analysisInProgress: 'Dateianalyse läuft. Schließen Sie dieses Fenster nicht, da die Analyse einige Minuten dauern kann, wenn Ihre Dateien groß sind',
+    photos: 'Fotos',
+    gpxFiles: 'GPX-Dateien',
+  },
+};
+
 async function submitForm(event) {
   event.preventDefault();
 
@@ -18,11 +36,13 @@ async function submitForm(event) {
   const textInputEl = document.getElementById('textInput');
   const textIssuesEl = document.getElementById('textIssues');
 
+  const translations = Object.keys(translationsMapping).includes(language) ? translationsMapping[language] : translationsMapping.fr;
+
   // Update the display when the submit button is clicked
   genericIssuesEl.innerText = '';
   gpxIssuesEl.innerText = '';
   gpxFilesInputEl.disabled = true;
-  messageEl.innerHTML = 'Analyse des fichiers en cours. Ne fermez pas cette fenêtre, cette analyse peut durer quelques minutes si vos fichiers sont volumineux';
+  messageEl.innerHTML = translations.analysisInProgress;
   messageEl.classList.toggle('d-none');
   photoIssuesEl.innerText = '';
   photoFilesInputEl.disabled = true;
@@ -64,8 +84,8 @@ async function submitForm(event) {
     if (success) {
       document.querySelector('#results').classList.remove('d-none');
       document.getElementById('successText').innerText = data.text;
-      document.getElementById('successPhotos').innerText = `Photos : ${data.photoFilelist.map((el) => `"${el}"`).join(', ')}`;
-      document.getElementById('successGpx').innerText = `Fichiers GPX : ${data.gpxFilelist.map((el) => `"${el}"`).join(', ')}`;
+      document.getElementById('successPhotos').innerText = `${translations.photos} : ${data.photoFilelist.map((el) => `"${el}"`).join(', ')}`;
+      document.getElementById('successGpx').innerText = `${translations.gpxFiles} : ${data.gpxFilelist.map((el) => `"${el}"`).join(', ')}`;
     } else {
       const {
         issues: {
