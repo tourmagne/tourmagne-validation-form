@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <title>Challenge du Tourmagne - Synthèse</title>
+  <meta charset='utf-8'>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+  <link rel='stylesheet' href='https://unpkg.com/maplibre-gl@5.0.0/dist/maplibre-gl.css' />
+  <script src='https://unpkg.com/maplibre-gl@5.0.0/dist/maplibre-gl.js'></script>
+  <script src="https://cdn.jsdelivr.net/npm/geolib@3.3.4/lib/index.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    html,
+    body {
+      height: 100%;
+    }
+
+    h1 {
+      text-align: center;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    }
+
+    li {
+      list-style-type: none;
+    }
+
+    section {
+      padding: .5rem;
+      margin: .5rem 0;
+      background-color: var(--grey);
+      border-radius: 6px;
+    }
+
+    #map {
+      flex: 1;
+    }
+
+    .blue {
+      color: #0000ff;
+      font-weight: bolder;
+    }
+
+    .red {
+      color: #FF0000;
+      font-weight: bolder;
+    }
+
+    .green {
+      color: #009100;
+      font-weight: bolder;
+    }
+
+    .black {
+      color: #000000;
+      font-weight: bolder;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>{{firstname}} {{lastname}}, voici la synthèse de ton challenge du Tourmagne</h1>
+  <section>
+    Sur la carte, tu trouveras :
+    <ul>
+      {{!-- <li><span class=blue>En bleu</span> : trace de référence</li> --}}
+      <li><span class=green>En vert</span>, le parcours que tu as réalisé (soit {{onTrackRatio}} % de la trace de référence)</li>
+      <li><span class=red>En rouge</span>, les parties de la trace de référence où tu n'as pas d'enregistrement GPS ({{missedDistance}} km soit {{offTrackRatio}} %)</li>
+      <li><span class=black>En trait évidé blanc</span>, la partie de la trace de référence que tu as parcourue pendant les {{rollingDuration}} heures les moins favorables (c'est à dire {{distance}} km commencés au km {{startPositionOfSlowestSegment}} de la trace de référence, le {{dateStr}} à {{timeStr}})</li>
+    </ul>
+  </section>
+  <div id="map"></div>
+
+  <script>
+    const style = {
+      version: 8,
+      sources: {
+        osm: {
+          type: 'raster',
+          tiles: ['https://a.tile.openstreetmap.org/{z}/{x}/{y}.png'],
+          tileSize: 256,
+          attribution: '&copy; OpenStreetMap Contributors',
+          maxzoom: 19,
+        },
+      },
+      layers: [
+        {
+          id: 'osm',
+          type: 'raster',
+          source: 'osm', // This must match the source key above
+        },
+      ],
+    };
+
+    const map = new maplibregl.Map({
+      container: 'map',
+      style,
+      center: [3.11, 46.42], // Display Melun - Nîmes zone, bounds will be updated later with fitBounds
+      zoom: 6,
+    });
+
+    map.addControl(new maplibregl.NavigationControl());
+
+    // const refCoordinates = {{refCoordinates}};
+    const challCoordinates = {{challCoordinates}};
+    const missedCoordinates = {{missedCoordinates}};
+    const worstCoordinates = {{worstCoordinates}};
+
+    const displayTrack = (map, id, segments, paint) => {
+      const features = [];
+      for (let i = 0; i < segments.length; i += 1) {
+        features.push({
+          type: 'Feature',
+          properties: {},
+          geometry: {
+            type: 'LineString',
+            coordinates: [],
+          },
+        });
+      }
+
+      const data = {
+        type: 'FeatureCollection',
+        features,
+      };
+
+      if (!map.getSource(id)) {
+        map.addSource(
+          id,
+          {
+            type: 'geojson',
+            data,
+          },
+        );
+
+        map.addLayer({
+          id,
+          type: 'line',
+          source: id,
+          layout: {
+            'line-join': 'round',
+            'line-cap': 'round',
+          },
+          paint,
+        });
+      }
+
+      segments.forEach((points, index) => {
+        points.forEach((point) => {
+          data.features[index].geometry.coordinates.push(point);
+        });
+      });
+
+      map.getSource(id).setData(data);
+    };
+
+    map.on('load', () => {
+      {{!-- /displayTrack(map, 'ref', refCoordinates, {
+        'line-color': '#0000ff',
+        'line-width': 6,
+       'line-opacity': 0.7,
+      }); --}}
+
+      displayTrack(map, 'chall', challCoordinates, {
+        'line-color': '#009100',
+        'line-width': 6,
+        'line-opacity': 0.7,
+      });
+
+      displayTrack(map, 'missed', missedCoordinates, {
+        'line-color': '#ff0000',
+        'line-width': 6,
+        'line-opacity': 0.7,
+      });
+
+      displayTrack(map, 'slowest', worstCoordinates, {
+        'line-color': '#ffffff',
+        'line-width': 2,
+        'line-opacity': 1,
+      });
+
+      // Center the map on the tracks
+      const allCoordinates = [
+        {{!-- ...refCoordinates.flat(), --}}
+        ...challCoordinates.flat(),
+      ];
+
+      const bounds = geolib.getBounds(allCoordinates);
+
+      map.fitBounds(
+        [[bounds.minLng, bounds.minLat],
+          [bounds.maxLng, bounds.maxLat]],
+        {
+          padding: 20,
+        },
+      );
+    });
+
+  </script>
+</body>
+
+</html>

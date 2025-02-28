@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-  <title>Challenge du Tourmagne - Synthèse</title>
+  <title>Challenge du Tourmagne - Summary</title>
   <meta charset='utf-8'>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"
@@ -66,14 +66,14 @@
 </head>
 
 <body>
-  <h1>{{firstname}} {{lastname}}, voici la synthèse de ton challenge du Tourmagne</h1>
+  <h1>{{firstname}} {{lastname}}, here is the summary of your "Challenge du Tourmagne"</h1>
   <section>
-    Sur la carte, tu trouveras :
+    On the map, you will find:
     <ul>
-      {{!-- <li><span class=blue>En bleu</span> : trace de référence</li> --}}
-      <li><span class=green>En vert</span>, le parcours que tu as réalisé (soit {{onTrackRatio}} % de la trace de référence)</li>
-      <li><span class=red>En rouge</span>, les parties de la trace de référence où tu n'as pas d'enregistrement GPS ({{missedDistance}} km soit {{offTrackRatio}} %)</li>
-      <li><span class=black>En trait évidé blanc</span>, la partie de la trace de référence que tu as parcourue pendant les {{rollingDuration}} heures les moins favorables (c'est à dire {{distance}} km commencés au km {{startPositionOfSlowestSegment}} de la trace de référence, le {{dateStr}} à {{timeStr}})</li>
+      {{!-- <li><span class=blue>In blue</span>: reference track</li> --}}
+      <li><span class=green>In green</span>, the route you have completed ({{onTrackRatio}} % of the reference track)</li>
+      <li><span class=red>In red</span>, the parts of the reference track where you have no GPS recording ({{missedDistance}} km, which is {{offTrackRatio}} %)</li>
+      <li><span class=black>In white outline</span>, the part of the reference track that you covered during the {{rollingDuration}} least favorable hours (i.e., {{distance}} km starting at km {{startPositionOfSlowestSegment}} of the reference track, on {{dateStr}} at {{timeStr}})</li>
     </ul>
   </section>
   <div id="map"></div>
