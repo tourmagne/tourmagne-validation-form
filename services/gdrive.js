@@ -12,7 +12,11 @@ const {
   GDRIVE_PRIVATE_KEY,
 } = process.env;
 
-const SCOPES = ['https://www.googleapis.com/auth/drive'];
+// Doc: https://developers.google.com/drive/api/guides/api-specific-auth
+const SCOPES = [
+  'https://www.googleapis.com/auth/drive.file',
+  'https://www.googleapis.com/auth/drive.readonly',
+];
 
 /**
  * Get authorization with service account
@@ -225,9 +229,9 @@ async function deleteAllFiles({ auth }) {
   const promises = files.map((file) => deleteFile({ auth, fileId: file.id, fileName: file.name }));
   console.log('\n');
 
-  await Promise.all(promises);
+  const responses = await Promise.allSettled(promises);
 
-  console.log(`Total of ${files.length} files DELETED`);
+  console.log(`Total of ${responses.filter((el) => el.status === 'fulfilled').length} files DELETED out of ${responses.length}`);
 }
 
 module.exports = {
