@@ -1,12 +1,14 @@
-require('dotenv').config();
+// require('dotenv').config();
 
-const { gdrive } = require('../services');
+// const { gdrive } = require('../services');
 
-async function main() {
-  const auth = await gdrive.getAuthorization();
-  await gdrive.deleteAllFiles({ auth });
-}
+// async function main() {
+//   const auth = await gdrive.getAuthorization();
+//   await gdrive.deleteAllFiles({ auth });
+// }
 
-main()
-  .then(() => console.log('cleanGoogleDriveFiles - Script terminated'))
-  .catch((err) => console.log(err));
+// main()
+//   .then(() => console.log('cleanGoogleDriveFiles - Script terminated'))
+//   .catch((err) => console.log(err));
+
+console.log('NOT WORKING - Script commented out');
