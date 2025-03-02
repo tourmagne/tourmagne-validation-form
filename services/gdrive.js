@@ -59,11 +59,18 @@ async function createFolder({ auth, name, parent }) {
 async function listFiles({ auth }) {
   const drive = google.drive({ version: 'v3', auth });
 
-  const res = await drive.files.list({
-    // pageSize: 100,
-    fields: 'nextPageToken, files(id, name)',
-  });
-  const files = res.data.files;
+  let files = [];
+  let nextPageToken = null;
+
+  do {
+    const res = await drive.files.list({
+      pageSize: 1000,
+      fields: 'nextPageToken, files',
+      pageToken: nextPageToken,
+    });
+    files = files.concat(res.data.files);
+    nextPageToken = res.data.nextPageToken;
+  } while (nextPageToken);
 
   return files;
 }
@@ -79,7 +86,7 @@ async function getMostRecentFolder({ auth, parentFolderId }) {
   const folder = await drive.files.list({
     pageSize: 1,
     q: `mimeType = 'application/vnd.google-apps.folder' and '${parentFolderId}' in parents`,
-    fields: 'nextPageToken, files(name)',
+    fields: 'files(name)',
     orderBy: 'name desc',
   });
 
@@ -203,12 +210,7 @@ async function deleteFile({ auth, fileId, fileName }) {
  * @param {OAuth2Client} params.auth An authorized OAuth2 client.
  */
 async function deleteAllFiles({ auth }) {
-  const drive = google.drive({ version: 'v3', auth });
-  const res = await drive.files.list({
-    fields: 'nextPageToken, files(id, name)',
-  });
-
-  const files = res.data.files;
+  const files = await this.listFiles({ auth });
   if (files.length === 0) {
     console.log('No files found.');
     return;
