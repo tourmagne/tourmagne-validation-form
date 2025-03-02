@@ -8,5 +8,5 @@ async function main() {
 }
 
 main()
-  .then(() => console.log('Script terminated'))
+  .then(() => console.log('cleanGoogleDriveFiles - Script terminated'))
   .catch((err) => console.log(err));

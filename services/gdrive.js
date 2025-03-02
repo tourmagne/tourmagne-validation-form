@@ -205,7 +205,7 @@ async function deleteFile({ auth, fileId, fileName }) {
     fileId,
   });
 
-  console.log(`File ${fileId} of name ${fileName} deleted: status ${res.status}`);
+  console.log(`File ${fileId} with name ${fileName} deleted: status ${res.status}`);
 }
 
 /**
@@ -220,14 +220,7 @@ async function deleteAllFiles({ auth }) {
     return;
   }
 
-  console.log('Files:');
-  files.map((file) => {
-    console.log(`${file.name} (${file.id})`);
-  });
-  console.log('\n');
-
   const promises = files.map((file) => deleteFile({ auth, fileId: file.id, fileName: file.name }));
-  console.log('\n');
 
   const responses = await Promise.allSettled(promises);
 
