@@ -6,7 +6,7 @@ switch (process.env.NODE_ENV) {
   case 'production':
     constants = {
       LANGUAGES: ['fr', 'en', 'de'],
-      MIN_DELAY_BETWEEN_SUBMISSIONS: 30 * 1000, // one hour in ms
+      MIN_DELAY_BETWEEN_SUBMISSIONS: 3600 * 1000, // one hour in ms
       MAX_FILE_SIZE: 15 * 1024 * 1024,
       MAX_GPX_NB: 20,
       MAX_PHOTO_NB: 5,
