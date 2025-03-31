@@ -53,3 +53,10 @@ form {
 .light {
   background-color: var(--light);
 }
+
+#logo {
+  padding-top: 1rem;
+  width: 100px;
+  display: block;
+  margin: auto;
+}
