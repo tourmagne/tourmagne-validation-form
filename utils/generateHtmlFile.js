@@ -50,20 +50,22 @@ function generateHtmlFile({ firstname, lastname, results }, language) {
 
   const template = handlebars.compile(source);
 
+  const offTrackRatioPerCent = Number.parseFloat(offTrackRatio * 100).toFixed(2);
+
   const data = {
     challCoordinates: trackToCoordinates(chall),
     missedCoordinates: trackToCoordinates(missedSegments),
     // refCoordinates: trackToCoordinates(ref),
     worstCoordinates: trackToCoordinates(worst),
     dateStr,
-    distance: Math.round(distance / 100) / 10,
+    distance: Number.parseFloat(distance / 1000).toFixed(3),
     firstname,
     lastname,
-    missedDistance: Math.round(missedDistance / 100) / 10,
-    offTrackRatio: Math.round(offTrackRatio * 10_000) / 100,
-    onTrackRatio: 100 - Math.round(offTrackRatio * 10_000) / 100,
+    missedDistance: Number.parseFloat(missedDistance / 1000).toFixed(1),
+    offTrackRatio: offTrackRatioPerCent,
+    onTrackRatio: 100 - offTrackRatioPerCent,
     rollingDuration,
-    startPositionOfSlowestSegment: Math.round(startPositionOfSlowestSegment / 100) / 10,
+    startPositionOfSlowestSegment: Number.parseFloat(startPositionOfSlowestSegment / 1000).toFixed(1),
     timeStr,
   };
 
