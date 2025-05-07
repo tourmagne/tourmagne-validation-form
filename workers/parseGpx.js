@@ -98,31 +98,35 @@ const parseGpx = (workerData) => {
     throw new ParsingError('invalidGpxError {{invalidFiles}}', { invalidFiles: invalidFiles.join('\n - ') });
   }
 
-  // For challenger tracks, check if they have timestamps
-  if (challengerGpx) {
-    if (trkptsArr.some((trkptsFile) => typeof trkptsFile[0][0].time === 'undefined')) {
-      throw new ParsingError('missingGpxTimestampsError');
+  try {
+    // For challenger tracks, check if they have timestamps
+    if (challengerGpx) {
+      if (trkptsArr.some((trkptsFile) => typeof trkptsFile[0][0].time === 'undefined')) {
+        throw new ParsingError('missingGpxTimestampsError');
+      }
     }
+
+    // If multiple gpx files strings where inputed, sort them chronollogically
+    if (trkptsArr.length > 1) {
+      sortFiles(trkptsArr);
+    }
+
+    // trkptsLines is an array with 2 levels
+    // 1st level represents the lines to display (each line could be a file or a <trkseg>)
+    // 2nd level reprensents <trkpt>
+    const trkptsLines = trkptsArr.flat();
+
+    // Only keep relevant properties and make sur lat & lon are number (i.e. lat, lon & time)
+    const keepLatLonTime = ({ lat, lon, time }) => ({
+      lat: Number(lat),
+      lon: Number(lon),
+      time,
+    });
+
+    return trkptsLines.map((line) => line.map((trkpt) => keepLatLonTime(trkpt)));
+  } catch (error) {
+    throw new ParsingError('gpxParsingError {{errorMessage}}', { errorMessage: error.message });
   }
-
-  // If multiple gpx files strings where inputed, sort them chronollogically
-  if (trkptsArr.length > 1) {
-    sortFiles(trkptsArr);
-  }
-
-  // trkptsLines is an array with 2 levels
-  // 1st level represents the lines to display (each line could be a file or a <trkseg>)
-  // 2nd level reprensents <trkpt>
-  const trkptsLines = trkptsArr.flat();
-
-  // Only keep relevant properties and make sur lat & lon are number (i.e. lat, lon & time)
-  const keepLatLonTime = ({ lat, lon, time }) => ({
-    lat: Number(lat),
-    lon: Number(lon),
-    time,
-  });
-
-  return trkptsLines.map((line) => line.map((trkpt) => keepLatLonTime(trkpt)));
 };
 
 try {

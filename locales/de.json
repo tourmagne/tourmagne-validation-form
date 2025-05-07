@@ -1,5 +1,6 @@
 {
   "emptyGpxError {{emptyFiles}}": "Die folgenden Dateien sind GPX-Dateien, die keine 'Track' enthalten:\n - {{emptyFiles}}",
+  "gpxParsingError {{errorMessage}}": "Die eingereichten GPX-Dateien konnten nicht verarbeitet werden; sie generieren den folgenden Fehler: \n - {{errorMessage}}",
 	"invalidGpxError {{invalidFiles}}": "Die folgende(n) Datei(en) sind keine gültigen GPX-Dateien:\n - {{invalidFiles}}",
 	"language": "de",
 	"missingGpxTimestampsError": "Ihre GPX-Dateien sind nicht konform, da mindestens eine von ihnen keine Zeitstempeldaten enthält (Zeitpunkt des Passierens jedes GPS-Punktes)",
