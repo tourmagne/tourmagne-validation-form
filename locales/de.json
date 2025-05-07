@@ -1,9 +1,11 @@
 {
+  "emptyGpxError {{emptyFiles}}": "Die folgenden Dateien sind GPX-Dateien, die keine 'Track' enthalten:\n - {{emptyFiles}}",
 	"invalidGpxError {{invalidFiles}}": "Die folgende(n) Datei(en) sind keine gültigen GPX-Dateien:\n - {{invalidFiles}}",
 	"language": "de",
 	"missingGpxTimestampsError": "Ihre GPX-Dateien sind nicht konform, da mindestens eine von ihnen keine Zeitstempeldaten enthält (Zeitpunkt des Passierens jedes GPS-Punktes)",
 	"overlapingGpxError": "Ihre GPX-Dateien sind nicht konform, da sich mindestens zwei von ihnen zeitlich überschneiden (sie enthalten Daten für denselben Zeitpunkt)",
   "recentSubmissionError {{dateStr}} {{timeStr}} {{minDelay}}": "Sie haben Ihre Dateien bereits am {{dateStr}} um {{timeStr}} eingereicht. Bitte warten Sie mindestens {{minDelay}} Minuten, bevor Sie sie erneut einreichen.",
+  "routeGpxError {{routeFiles}}": "Die folgenden Dateien sind GPX-'Route'-Dateien; Sie müssen GPX-'Track'-Dateien exportieren:\n - {{routeFiles}}",
 	"siteTitle": "Challenge du Tourmagne - Validierungsformular",
 	"tooBigGpx {{maxSize}}": "Einige GPX-Dateien sind zu groß (max: {{maxSize}} MB)",
 	"tooBigPhotos {{maxSize}}": "Einige Fotos sind zu groß (max: {{maxSize}} MB)",

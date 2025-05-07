@@ -37,38 +37,62 @@ const parseGpx = (workerData) => {
     attributeNamePrefix: '',
   });
 
-  let invalidFiles = [];
+  const emptyFiles = [];
+  const invalidFiles = [];
+  const routeFiles = [];
 
   // trkptsArr is an array with 3 levels
   // 1st level represents the file
   // 2nd level reprensents <trkseg>
   // 3rd level represent <trkpt>
   const trkptsArr = strs.map((str, index) => {
-    let gpx;
+    let parsedGpxFile;
 
     try {
-      gpx = parser.parse(str);
+      parsedGpxFile = parser.parse(str);
+
+      const trks = parsedGpxFile?.gpx?.trk;
+
+      if (!trks) {
+        if (parsedGpxFile?.gpx?.rte) {
+          routeFiles.push(filenames[index]);
+
+          return undefined;
+        }
+
+        emptyFiles.push(filenames[index]);
+
+        return undefined;
+      }
+
+      let trksegs;
+      if (Array.isArray(trks)) {
+        trksegs = trks.map((trk) => trk.trkseg);
+      } else {
+        trksegs = trks?.trkseg;
+      }
+
+      // Deal with case with multiple <trkseg> in stringified gpx file
+      if (Array.isArray(trksegs)) {
+        return trksegs.map((trkseg) => trkseg.trkpt);
+      }
+      return [trksegs?.trkpt];
+
     // eslint-disable-next-line no-unused-vars
     } catch (error) {
       invalidFiles.push(filenames[index]);
 
       return undefined;
     }
-    const trks = gpx?.gpx?.trk;
-
-    let trksegs;
-    if (Array.isArray(trks)) {
-      trksegs = trks.map((trk) => trk.trkseg);
-    } else {
-      trksegs = trks?.trkseg;
-    }
-
-    // Deal with case with multiple <trkseg> in stringified gpx file
-    if (Array.isArray(trksegs)) {
-      return trksegs.map((trkseg) => trkseg.trkpt);
-    }
-    return [trksegs?.trkpt];
   });
+
+  if (emptyFiles.length > 0) {
+    throw new ParsingError('emptyGpxError {{emptyFiles}}', { emptyFiles: emptyFiles.join('\n - ') });
+  }
+
+  if (routeFiles.length > 0) {
+    throw new ParsingError('routeGpxError {{routeFiles}}', { routeFiles: routeFiles.join('\n - ') });
+  }
 
   if (invalidFiles.length > 0) {
     throw new ParsingError('invalidGpxError {{invalidFiles}}', { invalidFiles: invalidFiles.join('\n - ') });
