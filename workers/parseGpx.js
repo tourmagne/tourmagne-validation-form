@@ -74,7 +74,17 @@ const parseGpx = (workerData) => {
 
       // Deal with case with multiple <trkseg> in stringified gpx file
       if (Array.isArray(trksegs)) {
-        return trksegs.map((trkseg) => trkseg.trkpt);
+        return trksegs.map((trkseg) => {
+          if (Array.isArray(trkseg.trkpt)) {
+            return trkseg?.trkpt;
+          }
+
+          if (trkseg.trkpt) {
+            return [trkseg.trkpt];
+          }
+
+          return [];
+        });
       }
       return [trksegs?.trkpt];
 
