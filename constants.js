@@ -13,7 +13,7 @@ switch (process.env.NODE_ENV) {
       MIN_TEXT_LENGTH: 50, // in string length
       MAX_TEXT_LENGTH: 10_000, // in string length
       COMPARATOR_OPTIONS: {
-        MAX_DETOUR: 50_000, // in meters
+        MAX_DETOUR: 100_000, // in meters
         MAX_SEG_LENGTH: 200, // in meters
         REF_TRACK_FILENAME: 'monotrace.gpx',
         ROLLING_DURATION: 24, // in hours
