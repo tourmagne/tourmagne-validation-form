@@ -6,7 +6,7 @@
       <section class='light'>
         <div class='form-group'>
           <label for='text'>Raconte-nous ton souvenir le plus marquant</label>
-          <textarea id='textInput' name='text' rows='10' class='form-control' required></textarea>
+          <textarea id='textInput' name='text' rows='10' class='form-control' minlength='{{minTextLength}}' maxlength='{{maxTextLength}}' required></textarea>
           <small>Champ obligatoire</small>
           <p id='textIssues' class='text-danger'></p>
         </div>
