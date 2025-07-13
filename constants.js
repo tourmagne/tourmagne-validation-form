@@ -7,7 +7,7 @@ switch (process.env.NODE_ENV) {
     constants = {
       LANGUAGES: ['fr', 'en', 'de'],
       MIN_DELAY_BETWEEN_SUBMISSIONS: 3600 * 1000, // one hour in ms
-      MAX_FILE_SIZE: 15 * 1024 * 1024,
+      MAX_FILE_SIZE: 40 * 1024 * 1024,
       MAX_GPX_NB: 20,
       MAX_PHOTO_NB: 5,
       MIN_TEXT_LENGTH: 50, // in string length
