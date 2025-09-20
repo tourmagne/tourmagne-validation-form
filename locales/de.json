@@ -4,6 +4,7 @@
 	"invalidGpxError {{invalidFiles}}": "Die folgende(n) Datei(en) sind keine gültigen GPX-Dateien:\n - {{invalidFiles}}",
 	"language": "de",
 	"missingGpxTimestampsError": "Bitte erneuere das Abrufen deiner aufgezeichneten GPX-Dateien. Mindestens eine deiner Dateien ist unvollständig, da sie keine Zeitstempeldaten enthält (Uhrzeit der Passage an jedem GPS-Punkt)",
+  "openRunnerFileError {{openRunnerFiles}}": "Die folgenden Dateien wurden über Openrunner abgerufen:\n - {{openRunnerFiles}}\nDiese Software hat Ihre Zeitstempeldaten ignoriert und nur die Route beibehalten. Die Datei kann daher nicht berücksichtigt werden. Bitte versuchen Sie es erneut, ohne Openrunner zu verwenden.",
 	"overlapingGpxError": "Ihre GPX-Dateien sind nicht konform, da sich mindestens zwei von ihnen zeitlich überschneiden (sie enthalten Daten für denselben Zeitpunkt)",
   "recentSubmissionError {{dateStr}} {{timeStr}} {{minDelay}}": "Sie haben Ihre Dateien bereits am {{dateStr}} um {{timeStr}} eingereicht. Bitte warten Sie mindestens {{minDelay}} Minuten, bevor Sie sie erneut einreichen.",
   "routeGpxError {{routeFiles}}": "Die folgenden Dateien sind GPX-'Route'-Dateien; Sie müssen GPX-'Track'-Dateien exportieren:\n - {{routeFiles}}",
