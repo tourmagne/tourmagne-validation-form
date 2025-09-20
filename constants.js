@@ -6,7 +6,7 @@ switch (process.env.NODE_ENV) {
   case 'production':
     constants = {
       LANGUAGES: ['fr', 'en', 'de'],
-      MIN_CHALLENGER_GPX_POINTS: 20_000,
+      MIN_CHALLENGER_GPX_POINTS: 40_000,
       MIN_DELAY_BETWEEN_SUBMISSIONS: 3600 * 1000, // one hour in ms
       MAX_FILE_SIZE: 40 * 1024 * 1024,
       MAX_GPX_NB: 20,
