@@ -4,9 +4,9 @@ const fs = require('fs');
 const handlebars = require('handlebars');
 const path = require('path');
 
-handlebars.registerHelper('lt', function (a, b) {
-  return a < b;
-});
+// handlebars.registerHelper('lt', function (a, b) {
+//   return a < b;
+// });
 
 const {
   MIN_CHALLENGER_GPX_POINTS,

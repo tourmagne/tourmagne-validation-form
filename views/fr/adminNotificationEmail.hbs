@@ -1,11 +1,11 @@
 <p>Cher administrateur du Tourmagne,</p>
 <p><a href='https://drive.google.com/drive/folders/{{challengerFolderId}}'>{{firstname}} {{lastname}}</a> vient de lancer la soumission de ses fichiers. Ceux-ci seront disponibles dans ce <a href='https://drive.google.com/drive/folders/{{submissionFolderId}}'>dossier Google Drive</a> dans quelques minutes.</p>
 <p>Ses fichiers GPX contiennent au total {{challPointsLength}} points GPX.
-{{#if (lt challPointsLength minChallengerGpxPoints)}}
+{{!-- {{#if (lt challPointsLength minChallengerGpxPoints)}}
 <span style="color:red;"> ALERTE! Ce nombre de points est inférieur à {{minChallengerGpxPoints}}, une vérification manuelle détaillée des fichiers soumis par le challenger est nécessaire.</span>
 {{else}}
 Ce nombre de points est supérieur à {{minChallengerGpxPoints}} et semble donc conforme.
-{{/if}}
+{{/if}} --}}
 </p>
 <p>Voici le texte que {{firstname}} {{lastname}} a rédigé:<br>
 <i>{{text}}</i></p>
