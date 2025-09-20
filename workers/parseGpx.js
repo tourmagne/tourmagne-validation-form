@@ -40,6 +40,7 @@ const parseGpx = (workerData) => {
   const emptyFiles = [];
   const invalidFiles = [];
   const routeFiles = [];
+  const openRunnerFiles = [];
 
   // trkptsArr is an array with 3 levels
   // 1st level represents the file
@@ -50,6 +51,11 @@ const parseGpx = (workerData) => {
 
     try {
       parsedGpxFile = parser.parse(str);
+
+      // Reject files exported by Openrunner since Openrunner replaces the initial timestamps by fake data
+      if (parsedGpxFile.gpx.creator === 'Openrunner - https://www.openrunner.com') {
+        openRunnerFiles.push(filenames[index]);
+      }
 
       const trks = parsedGpxFile?.gpx?.trk;
 
@@ -106,6 +112,10 @@ const parseGpx = (workerData) => {
 
   if (invalidFiles.length > 0) {
     throw new ParsingError('invalidGpxError {{invalidFiles}}', { invalidFiles: invalidFiles.join('\n - ') });
+  }
+
+  if (openRunnerFiles.length > 0) {
+    throw new ParsingError('openRunnerFileError {{openRunnerFiles}}', { openRunnerFiles: openRunnerFiles.join('\n - ') });
   }
 
   // For challenger tracks, check if they have timestamps
