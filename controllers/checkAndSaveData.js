@@ -285,7 +285,6 @@ async function checkAndSaveData(req, res, next) {
     challengerFolderId,
     firstname,
     lastname,
-    challPointsLength: challPoints.length,
     submissionFolderId,
     text,
   });

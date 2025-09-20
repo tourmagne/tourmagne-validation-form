@@ -4,7 +4,6 @@
 	"invalidGpxError {{invalidFiles}}": "Les fichiers suivants ne sont pas des fichiers GPX valides :\n - {{invalidFiles}}",
 	"language": "fr",
 	"missingGpxTimestampsError": "Merci de renouveler la récupération de tes fichiers GPX d'enregistrement. En effet, au moins l'un de tes fichiers n'est pas complet car ils ne contient pas de données de temps de passage (heure de passage à chaque point GPS)",
-  "openRunnerFileError {{openRunnerFiles}}": "Les fichiers suivants ont été récupéré via Openrunner :\n - {{openRunnerFiles}}\nCe logiciel a ignoré tes données de temps de passage pour ne garder que l'itinéraire. Le fichier ne peut donc pas être pris en compte, merci de recommencer sans passer par Openrunner.",
 	"overlapingGpxError": "Tes fichiers GPX ne sont pas conformes car au moins 2 d'entre eux se chevauchent temporellement (ils contiennent des données pour le même horaire)",
 	"recentSubmissionError {{dateStr}} {{timeStr}} {{minDelay}}": "Vous avez déjà soumis vos fichiers le {{dateStr}} à {{timeStr}}, veuillez patienter au moins {{minDelay}} minutes avant de les resoumettre",
 	"routeGpxError {{routeFiles}}": "Les fichiers suivants sont des fichiers de 'route' GPX, il faut que tu exportes des fichiers de 'track' GPX :\n - {{routeFiles}}",
