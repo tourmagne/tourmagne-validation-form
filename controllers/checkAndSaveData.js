@@ -281,7 +281,7 @@ async function checkAndSaveData(req, res, next) {
 
   // Send email
   logger('checkAndSaveData controller: notify by email');
-  await mailer.notify({
+  mailer.notify({
     challengerFolderId,
     firstname,
     lastname,
