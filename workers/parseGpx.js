@@ -108,14 +108,14 @@ const parseGpx = (workerData) => {
     throw new ParsingError('invalidGpxError {{invalidFiles}}', { invalidFiles: invalidFiles.join('\n - ') });
   }
 
-  try {
-    // For challenger tracks, check if they have timestamps
-    if (challengerGpx) {
-      if (trkptsArr.some((trkptsFile) => typeof trkptsFile[0][0].time === 'undefined')) {
-        throw new ParsingError('missingGpxTimestampsError');
-      }
+  // For challenger tracks, check if they have timestamps
+  if (challengerGpx) {
+    if (trkptsArr.some((trkptsFile) => typeof trkptsFile[0][0].time === 'undefined')) {
+      throw new ParsingError('missingGpxTimestampsError');
     }
+  }
 
+  try {
     // If multiple gpx files strings where inputed, sort them chronollogically
     if (trkptsArr.length > 1) {
       sortFiles(trkptsArr);

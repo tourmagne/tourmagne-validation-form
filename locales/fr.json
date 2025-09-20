@@ -3,7 +3,7 @@
 	"gpxParsingError {{errorMessage}}": "Les fichiers GPX soumis n'ont pas pu être traités, ils génèrent l'erreur suivante: \n - {{errorMessage}}",
 	"invalidGpxError {{invalidFiles}}": "Les fichiers suivants ne sont pas des fichiers GPX valides :\n - {{invalidFiles}}",
 	"language": "fr",
-	"missingGpxTimestampsError": "Tes fichiers GPX ne sont pas conformes car au moins l'un d'eux ne contient pas de données temporelles (heure de passage à chaque point GPS)",
+	"missingGpxTimestampsError": "Merci de renouveler la récupération de tes fichiers GPX d'enregistrement. En effet, au moins l'un de tes fichiers n'est pas complet car ils ne contient pas de données de temps de passage (heure de passage à chaque point GPS)",
 	"overlapingGpxError": "Tes fichiers GPX ne sont pas conformes car au moins 2 d'entre eux se chevauchent temporellement (ils contiennent des données pour le même horaire)",
 	"recentSubmissionError {{dateStr}} {{timeStr}} {{minDelay}}": "Vous avez déjà soumis vos fichiers le {{dateStr}} à {{timeStr}}, veuillez patienter au moins {{minDelay}} minutes avant de les resoumettre",
 	"routeGpxError {{routeFiles}}": "Les fichiers suivants sont des fichiers de 'route' GPX, il faut que tu exportes des fichiers de 'track' GPX :\n - {{routeFiles}}",
@@ -13,6 +13,5 @@
 	"tooManyGpx {{maxNb}}": "Le nombre de fichiers GPX dépasse le maximum ({{maxNb}} maximum)",
 	"tooManyPhotos {{maxNb}}": "Le nombre de photos dépasse le maximum ({{maxNb}} maximum)",
 	"textTooLong {{maxLength}}": "Le texte est trop long (maximum : {{maxLength}} caractères)",
-	"textTooShort": "Tu as vécu une grande aventure, on compte sur toi pour nous en dire un peu plus !",
-	"gpxParsingError": "gpxParsingError"
+	"textTooShort": "Tu as vécu une grande aventure, on compte sur toi pour nous en dire un peu plus !"
 }
